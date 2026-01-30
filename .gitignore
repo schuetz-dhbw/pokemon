@@ -1,0 +1,16 @@
+# PyCharm
+/.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# OS
+.DS_Store
