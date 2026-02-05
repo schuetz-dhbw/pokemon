@@ -1,0 +1,232 @@
+[
+  {
+    "id": 1,
+    "name": "Bisasam",
+    "types": [
+      "Pflanze",
+      "Gift"
+    ],
+    "evolution": {
+      "evolves_to": 2,
+      "evolution_level": 16
+    },
+    "stats": {
+      "hp": 45,
+      "attack": 49,
+      "defense": 49,
+      "initiative": 45
+    },
+    "attacks": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "physical",
+        "status_effect": null
+      },
+      {
+        "name": "Heuler",
+        "type": "Normal",
+        "power": 0,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "status",
+        "status_effect": {
+          "effect_type": "stat_change",
+          "target_stat": "attack",
+          "change": -1,
+          "chance": 1.0
+        }
+      }
+    ],
+    "habitat": [],
+    "catch_rate": 45,
+    "spawn_probability": 0
+  },
+  {
+    "id": 4,
+    "name": "Glumanda",
+    "types": [
+      "Feuer"
+    ],
+    "evolution": {
+      "evolves_to": 5,
+      "evolution_level": 16
+    },
+    "stats": {
+      "hp": 45,
+      "attack": 49,
+      "defense": 49,
+      "initiative": 45
+    },
+    "attacks": [
+      {
+        "name": "Kratzer",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "physical",
+        "status_effect": null
+      },
+      {
+        "name": "Heuler",
+        "type": "Normal",
+        "power": 0,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "status",
+        "status_effect": {
+          "effect_type": "stat_change",
+          "target_stat": "attack",
+          "change": -1,
+          "chance": 1.0
+        }
+      }
+    ],
+    "habitat": [],
+    "catch_rate": 45,
+    "spawn_probability": 0
+  },
+  {
+    "id": 7,
+    "name": "Schiggy",
+    "types": [
+      "Wasser"
+    ],
+    "evolution": {
+      "evolves_to": 8,
+      "evolution_level": 16
+    },
+    "stats": {
+      "hp": 44,
+      "attack": 48,
+      "defense": 65,
+      "initiative": 43
+    },
+    "attacks": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "physical",
+        "status_effect": null
+      },
+      {
+        "name": "Rutenschlag",
+        "type": "Normal",
+        "power": 0,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "status",
+        "status_effect": {
+          "effect_type": "stat_change",
+          "target_stat": "defense",
+          "change": -1,
+          "chance": 1.0
+        }
+      }
+    ],
+    "habitat": [],
+    "catch_rate": 45,
+    "spawn_probability": 0
+  },
+  {
+    "id": 10,
+    "name": "Raupy",
+    "types": [
+      "Käfer"
+    ],
+    "evolution": {
+      "evolves_to": 11,
+      "evolution_level": 7
+    },
+    "stats": {
+      "hp": 45,
+      "attack": 30,
+      "defense": 35,
+      "initiative": 45
+    },
+    "attacks": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "physical",
+        "status_effect": null
+      },
+      {
+        "name": "Fadenschuss",
+        "type": "Normal",
+        "power": 0,
+        "accuracy": 0.95,
+        "required_level": 1,
+        "category": "status",
+        "status_effect": {
+          "effect_type": "stat_change",
+          "target_stat": "initiative",
+          "change": -1,
+          "chance": 1.0
+        }
+      }
+    ],
+    "habitat": ["Gras"],
+    "catch_rate": 255,
+    "spawn_probability": 0.7
+  },
+  {
+    "id": 13,
+    "name": "Hornliu",
+    "types": [
+      "Käfer",
+      "Gift"
+    ],
+    "evolution": {
+      "evolves_to": 14,
+      "evolution_level": 7
+    },
+    "stats": {
+      "hp": 40,
+      "attack": 35,
+      "defense": 30,
+      "initiative": 50
+    },
+    "attacks": [
+      {
+        "name": "Giftstachel",
+        "type": "Gift",
+        "power": 15,
+        "accuracy": 1.0,
+        "required_level": 1,
+        "category": "physical",
+        "status_effect": {
+          "effect_type": "poison",
+          "chance": 0.3
+        }
+      },
+      {
+        "name": "Fadenschuss",
+        "type": "Käfer",
+        "power": 0,
+        "accuracy": 0.95,
+        "required_level": 1,
+        "category": "status",
+        "status_effect": {
+          "effect_type": "stat_change",
+          "target_stat": "initiative",
+          "change": -1,
+          "chance": 1.0
+        }
+      }
+    ],
+    "habitat": ["Gras"],
+    "catch_rate": 255,
+    "spawn_probability": 0.5
+  }
+]

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "professor_oak",
+    "name": "Professor Eich",
+    "description": "Ein freundlicher Pokémon-Professor mit grauem Haar und weißem Kittel.",
+    "npc_type": "Questgeber",
+    "dialogue": [
+      "Hallo! Herzlich Willkommen in der Welt der Pokémon!\nMein Name ist Eich. Man nennt mich den Pokémon-Professor. Wie lautet dein Name?",
+      "Diese Welt wird von Wesen bewohnt, die man Pokémon nennt. Für manche Leute sind Pokémon Haustiere, andere tragen Kämpfe mit ihnen aus. Ich selbst habe mein Hobby zum Beruf gemacht und studiere Pokémon.",
+      "Wähle dein erstes Pokémon aus. Du hast die Wahl zwischem Bisasam, Glumanda und Schiggy.",
+      "Oh, gute Wahl! Eine unglaubliche Reise in die Welt der Pokémon erwartet Dich! Eine Welt voller Wunder, Abenteuer und Geheimnisse! Kurz gesagt, ein Traum wird wahr!,",
+      "Nimm noch diesen Pokédex mit. Er wird dir helfen, alle Pokémon zu katalogisieren."
+    ],
+    "team": [],
+    "inventory": [
+      {
+        "item_id": "pokedex",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "mom",
+    "name": "Mutter",
+    "description": "Deine liebevolle Mutter, die sich immer um dich und deine Pokémon kümmert.",
+    "npc_type": "Heiler",
+    "dialogue": [
+      "Willkommen zu Hause, mein Kind!",
+      "Komm, ruh dich erstmal aus, während ich mich um deine Pokémon kümmere und sie heile.",
+      "Hier, nimm diesen Heiltrank mit auf deine Reise!"
+    ],
+    "team": [],
+    "inventory": [
+      {
+        "item_id": "potion_heal",
+        "quantity": 1
+      }
+    ]
+  }
+]

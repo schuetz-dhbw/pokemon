@@ -1,4 +1,4 @@
-import intro
+from views import intro
 
 intro.play_intro()
 

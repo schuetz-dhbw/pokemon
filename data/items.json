@@ -1,0 +1,23 @@
+[
+  {
+    "id": "pokeball",
+    "name": "Pokéball",
+    "type": "Ball"
+  },
+    {
+    "id": "potion_heal",
+    "name": "Heiltrank",
+    "type": "Trank",
+    "heal_hp": 50
+  },
+  {
+    "id": "map",
+    "name": "Karte",
+    "type": "Schlüsselitem"
+  },
+  {
+    "id": "pokedex",
+    "name": "Pokédex",
+    "type": "Schlüsselitem"
+  }
+]

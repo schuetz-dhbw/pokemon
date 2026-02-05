@@ -1,0 +1,192 @@
+[
+  {
+    "id": "city_alabastia",
+    "name": "Alabastia",
+    "description": "Ein kleines, friedliches Dorf, in dem du aufgewachsen bist. Die Luft riecht nach frischem Gras und Abenteuer.",
+    "type": "Stadt",
+    "size": [
+      7,
+      4
+    ],
+    "auto_boundary": true,
+    "special_tiles": [
+      {
+        "x": 2,
+        "y": 2,
+        "type": "Gebäude",
+        "door_target": "player_home"
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "type": "Gebäude",
+        "door_target": "oaks_lab"
+      }
+    ],
+    "connections": {
+      "home": "player_home",
+      "lab": "oaks_lab",
+      "north": "route_01",
+      "south": "lake_alabastia"
+    },
+    "npcs": [],
+    "items": []
+  },
+  {
+    "id": "player_home",
+    "name": "Dein Zuhause",
+    "description": "Ein gemütliches Haus, in dem du mit deiner Mutter lebst. Es riecht nach frisch gebackenem Brot.",
+    "type": "Gebäude",
+    "size": [
+      3,
+      3
+    ],
+    "auto_boundary": true,
+    "special_tiles": [
+      {
+        "x": 1,
+        "y": 2,
+        "type": "Tür",
+        "door_target": "city_alabastia"
+      }
+    ],
+    "connections": {
+      "exit": "city_alabastia"
+    },
+    "npcs": [
+      "mom"
+    ],
+    "items": [
+      {
+        "item_id": "map",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "oaks_lab",
+    "name": "Labor von Professor Eich",
+    "description": "Ein großes Labor voller Bücher, Maschinen und Pokémon. Professor Eich forscht hier über Pokémon.",
+    "type": "Gebäude",
+    "size": [
+      4,
+      6
+    ],
+    "auto_boundary": true,
+    "special_tiles": [
+      {
+        "x": 1,
+        "y": 5,
+        "type": "Tür",
+        "door_target": "city_alabastia"
+      }
+    ],
+    "connections": {
+      "exit": "city_alabastia"
+    },
+    "npcs": [
+      "professor_oak"
+    ],
+    "items": [
+      {
+        "item_id": "pokeball",
+        "quantity": 5
+      }
+    ]
+  },
+  {
+    "id": "route_01",
+    "name": "Route",
+    "description": "Ein langer Weg mit hohem Gras. Hier begegnen dir wilde Pokémon!",
+    "type": "Route",
+    "size": [
+      5,
+      15
+    ],
+    "auto_boundary": true,
+        "special_tiles": [
+      {"x": 0, "y": 0, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 1, "y": 0, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 0, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 0, "y": 1, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 1, "y": 1, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 1, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 0, "y": 2, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 1, "y": 2, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 2, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+
+      {"x": 2, "y": 4, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 3, "y": 4, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 4, "y": 4, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 5, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 3, "y": 5, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 4, "y": 5, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 6, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 3, "y": 6, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 4, "y": 6, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+
+      {"x": 0, "y": 8, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 1, "y": 8, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 8, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 0, "y": 9, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 1, "y": 9, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 9, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 0, "y": 10, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 1, "y": 10, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 10, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+
+      {"x": 2, "y": 12, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 3, "y": 12, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 4, "y": 12, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 13, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 3, "y": 13, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 4, "y": 13, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 2, "y": 14, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 3, "y": 14, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
+      {"x": 4, "y": 14, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"}
+    ],
+    "connections": {
+      "south": "city_alabastia",
+      "north": "city_vertania"
+    },
+    "npcs": [],
+    "items": []
+  },
+  {
+    "id": "city_vertania",
+    "name": "Vertania City",
+    "description": "Eine größere Stadt nördlich von Alabastia. Hier gibt es viel zu entdecken!",
+    "type": "Stadt",
+    "size": [
+      10,
+      8
+    ],
+    "auto_boundary": true,
+    "special_tiles": [],
+    "connections": {
+      "south": "route_01"
+    },
+    "npcs": [],
+    "items": []
+  },
+  {
+    "id": "lake_alabastia",
+    "name": "See südlich von Alabastia",
+    "description": "Ein ruhiger See mit klarem Wasser. Vielleicht leben hier Wasser-Pokémon?",
+    "type": "Gewässer",
+    "size": [
+      7,
+      3
+    ],
+    "auto_boundary": false,
+    "special_tiles": [
+      {"x": 2, "y": 2, "type": "Holz"},
+      {"x": 3, "y": 2, "type": "Holz"}
+      ],
+    "connections": {
+      "north": "city_alabastia"
+    },
+    "npcs": [],
+    "items": []
+  }
+]
