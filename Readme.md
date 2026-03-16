@@ -25,3 +25,8 @@ dich auf eine Reise durch die Kanto-Region.
 Alles findet textbasiert im Terminal statt.
 
 Viel Spaß!
+
+# Disclaimer
+This is an educational project developed as a lecture example at DHBW Heidenheim.
+Pokémon and all related names are trademarks of Nintendo/Game Freak.
+This project is not affiliated with or endorsed by Nintendo.
