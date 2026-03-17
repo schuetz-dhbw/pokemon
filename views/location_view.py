@@ -1,3 +1,4 @@
+from game.context import GameContext
 from models.world.location import Location, DEFAULT_BOUNDARIES, DEFAULT_TILES
 from models.world.tile import TileType
 from models.world.world import World
@@ -112,18 +113,18 @@ def _get_target_name(target_id: str, world: World) -> str:
     return target.name if target else target_id
 
 
-def display_location(location: Location, world: World, npcs_db: dict | None = None) -> None:
+def display_location(location: Location, ctx: GameContext) -> None:
     """Gibt eine Location mit Name, ASCII-Grid, Beschreibung, NPCs und Verbindungen aus"""
     print(f"\n=== {location.name} ===")
     print(render_location(location))
     print(f"\n{location.description}")
 
-    if location.npcs and npcs_db:
+    if location.npcs:
         print("\nFolgende Personen befinden sich hier:")
         for npc_id in location.npcs:
-            npc = npcs_db.get(npc_id)
+            npc = ctx.npcs_db.get(npc_id)
             name = npc.name if npc else npc_id
-            print(f"  👤 {name} (talk {npc_id})")
+            print(f"👤 {name} (talk {npc_id})")
 
     if not location.connections:
         return
@@ -135,7 +136,7 @@ def display_location(location: Location, world: World, npcs_db: dict | None = No
     other_lines = []
 
     for key, target_id in location.connections.items():
-        target_name = _get_target_name(target_id, world)
+        target_name = _get_target_name(target_id, ctx.world)
         if key in DIRECTION_SYMBOLS:
             direction_lines.append(f"  {DIRECTION_SYMBOLS[key]} {target_name} (go {target_id})")
         else:

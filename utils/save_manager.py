@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from game.context import GameContext
 from models.characters.player import Player
 from models.item import Item
 from models.pokemon.pokemon import Pokemon
@@ -17,18 +18,17 @@ class SaveManager:
         self.saves_dir = Path(saves_dir)
         self.saves_dir.mkdir(exist_ok=True)
 
-    def save_game(self, player: Player, world: World, save_name: str = "savegame") -> None:
+    def save_game(self, ctx: GameContext, save_name: str = "savegame") -> None:
         """Speichert den aktuellen Spielstand
 
         Args:
-            player: Spieler-Objekt
-            world: Welt-Objekt
+            ctx: GameContext mit Referenz auf world, player, npcs, ...
             save_name: Name der Speicherdatei (ohne .json)
         """
         save_data = {
             "timestamp": datetime.now().isoformat(),
-            "player": self._serialize_player(player),
-            "world_state": self._serialize_world_state(world)
+            "player": self._serialize_player(ctx.player),
+            "world_state": self._serialize_world_state(ctx)
         }
 
         filepath = self.saves_dir / f"{save_name}.json"
@@ -37,7 +37,7 @@ class SaveManager:
 
         print(f"Spielstand gespeichert: {filepath}")
 
-    def load_game(self, save_name: str, data_loader: DataLoader) -> tuple[Player, World]:
+    def load_game(self, save_name: str, data_loader: DataLoader) -> tuple[Player, World, dict]:
         """Lädt einen Spielstand
 
         Args:
@@ -45,7 +45,7 @@ class SaveManager:
             data_loader: DataLoader-Instanz zum Laden der statischen Daten
 
         Returns:
-            Tuple mit (Player, World)
+            Tuple mit (Player, World, NPCs-DB)
         """
         filepath = self.saves_dir / f"{save_name}.json"
 
@@ -62,22 +62,24 @@ class SaveManager:
         player = self._deserialize_player(save_data["player"], data_loader, items_db)
 
         # World-State wiederherstellen
-        self._apply_world_state(world, save_data["world_state"])
+        self._apply_world_state(world, save_data["world_state"], npcs_db)
 
-        return player, world
+        return player, world, npcs_db
 
-    def _serialize_player(self, player: Player) -> dict[str, Any]:
+    @staticmethod
+    def _serialize_player(player: Player) -> dict[str, Any]:
         """Serialisiert Player-Objekt für JSON"""
         return {
             "name": player.name,
             "current_location": player.current_location,
             "money": player.money,
             "movement_speed": player.movement_speed,
-            "team": [self._serialize_pokemon(p) for p in player.team],
-            "inventory": [self._serialize_item(i) for i in player.inventory]
+            "team": [SaveManager._serialize_pokemon(p) for p in player.team],
+            "inventory": [SaveManager._serialize_item(i) for i in player.inventory]
         }
 
-    def _serialize_pokemon(self, pokemon: Pokemon) -> dict[str, Any]:
+    @staticmethod
+    def _serialize_pokemon(pokemon: Pokemon) -> dict[str, Any]:
         """Serialisiert Pokemon-Objekt für JSON"""
         return {
             "id": pokemon.id,
@@ -91,29 +93,32 @@ class SaveManager:
             }
         }
 
-    def _serialize_item(self, item: Item) -> dict[str, Any]:
+    @staticmethod
+    def _serialize_item(item: Item) -> dict[str, Any]:
         """Serialisiert Item-Objekt für JSON"""
         return {
             "id": item.id,
             "quantity": item.quantity
         }
 
-    def _serialize_world_state(self, world: World) -> dict[str, Any]:
-        """Serialisiert World-State (eingesammelte Items)"""
-        world_state = {
-            "locations": {}
-        }
-
-        for loc_id, location in world.locations.items():
+    @staticmethod
+    def _serialize_world_state(ctx: GameContext) -> dict[str, Any]:
+        world_state = {"locations": {}}
+        for loc_id, location in ctx.world.locations.items():
+            npc_states = {}
+            for npc_id in location.npcs:
+                npc = ctx.npcs_db.get(npc_id)
+                if npc:
+                    npc_states[npc_id] = {"current_node": npc.current_node}
             world_state["locations"][loc_id] = {
-                "items": location.items,  # Liste mit {"item_id": str, "quantity": int}
-                "npcs": location.npcs  # Liste mit NPC-IDs
+                "items": location.items,
+                "npcs": location.npcs,
+                "npc_states": npc_states
             }
-
         return world_state
 
+    @staticmethod
     def _deserialize_player(
-            self,
             player_data: dict[str, Any],
             data_loader: DataLoader,
             items_db: dict[str, Item]
@@ -159,13 +164,18 @@ class SaveManager:
             inventory=inventory
         )
 
-    def _apply_world_state(self, world: World, world_state: dict[str, Any]) -> None:
+    @staticmethod
+    def _apply_world_state(world: World, world_state: dict[str, Any], npcs_db: dict) -> None:
         """Wendet gespeicherten World-State an"""
         for loc_id, loc_state in world_state["locations"].items():
             if loc_id in world.locations:
                 location = world.locations[loc_id]
                 location.items = loc_state["items"]
                 location.npcs = loc_state["npcs"]
+                for npc_id, npc_state in loc_state.get("npc_states", {}).items():
+                    npc = npcs_db.get(npc_id)
+                    if npc:
+                        npc.current_node = npc_state["current_node"]
 
     def list_saves(self) -> list[tuple[str, str]]:
         """Listet alle verfügbaren Spielstände auf.

@@ -12,6 +12,17 @@ from models.world.location import Location, LocationType
 from models.world.tile import HabitatType
 from models.world.world import World
 
+ATTACK_CATEGORY_MAP: dict[str, AttackCategory] = {
+    "physical": AttackCategory.PHYSICAL,
+    "status": AttackCategory.STATUS,
+    "special": AttackCategory.SPECIAL
+}
+
+STATUS_EFFECT_TYPE_MAP: dict[str, StatusEffectType] = {
+    "poison": StatusEffectType.POISON,
+    "burn": StatusEffectType.BURN,
+    "stat_change": StatusEffectType.STAT_CHANGE
+}
 
 class DataLoader:
     """Lädt statische Spieldaten aus JSON-Dateien"""
@@ -92,7 +103,7 @@ class DataLoader:
             if attack_data.get("status_effect"):
                 se_data = attack_data["status_effect"]
                 status_effect = StatusEffect(
-                    effect_type=StatusEffectType(se_data["effect_type"]),
+                    effect_type=STATUS_EFFECT_TYPE_MAP[se_data["effect_type"]],
                     chance=se_data["chance"],
                     target_stat=se_data.get("target_stat"),
                     change=se_data.get("change"),
@@ -104,7 +115,7 @@ class DataLoader:
                 type=PokemonType(attack_data["type"]),
                 power=attack_data["power"],
                 accuracy=attack_data["accuracy"],
-                category=AttackCategory(attack_data["category"]),
+                category=ATTACK_CATEGORY_MAP[attack_data["category"]],
                 required_level=attack_data["required_level"],
                 status_effect=status_effect
             )

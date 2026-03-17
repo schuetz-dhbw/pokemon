@@ -14,3 +14,7 @@ class Item:
     type: ItemType
     heal_hp: int | None = None
     quantity: int = 1
+
+    def copy(self, quantity: int | None = None) -> "Item":
+        from dataclasses import replace
+        return replace(self, quantity=quantity if quantity is not None else self.quantity)

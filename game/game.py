@@ -1,10 +1,9 @@
-from models.characters.npc import NPC
+from game.commands import parse_command
+from game.context import GameContext
 from models.characters.player import Player
 from models.item import Item, ItemType
-from models.world.world import World
 from utils.data_loader import DataLoader
 from utils.save_manager import SaveManager
-from game.commands import parse_command
 from views.location_view import display_location
 
 
@@ -14,53 +13,52 @@ class Game:
     def __init__(self, data_dir: str = "data", saves_dir: str = "saves"):
         self.loader = DataLoader(data_dir=data_dir)
         self.save_manager = SaveManager(saves_dir=saves_dir)
-        self.world: World | None = None
-        self.player: Player | None = None
-        self.pokemons_db: dict[int, dict] = {}
-        self.items_db: dict[str, Item] = {}
-        self.npcs_db: dict[str, NPC] = {}
+        self.context: GameContext | None = None
+
+    def _build_context(self, player, world, pokemons_db, items_db, npcs_db) -> GameContext:
+        return GameContext(
+            player=player,
+            world=world,
+            npcs_db=npcs_db,
+            items_db=items_db,
+            pokemons_db=pokemons_db
+        )
 
     def new_game(self, player_name: str) -> None:
         """Startet ein neues Spiel"""
-        self.world, self.pokemons_db, self.items_db, self.npcs_db = self.loader.load_all()
-
-        home = self.world.get_location("player_home")
-
-        starter_pokeball = Item(
-            id="pokeball",
-            name="Pokéball",
-            type=ItemType.BALL,
-            quantity=5
-        )
-
-        self.player = Player(
+        world, pokemons_db, items_db, npcs_db = self.loader.load_all()
+        starter_pokeball = Item(id="pokeball", name="Pokéball", type=ItemType.BALL, quantity=5)
+        player = Player(
             name=player_name,
-            current_location=self.world.starting_location,
+            current_location=world.starting_location,
             inventory=[starter_pokeball]
         )
+
+        self.context = self._build_context(player, world, pokemons_db, items_db, npcs_db)
 
         print(f"\nWillkommen, {player_name}! Dein Abenteuer beginnt!")
         print("Tippe 'hilfe' für eine Übersicht der Befehle.")
 
-        start = self.world.get_location(self.world.starting_location)
+        start = world.get_location(world.starting_location)
         if start:
-            display_location(start, self.world, self.npcs_db)
+            display_location(start, self.context)
 
     def load_game(self, save_name: str) -> None:
         """Lädt einen Spielstand"""
         try:
-            self.player, self.world = self.save_manager.load_game(save_name, self.loader)
-            self.world, self.pokemons_db, self.items_db, self.npcs_db = self.loader.load_all()
+            player, world, npcs_db = self.save_manager.load_game(save_name, self.loader)
+            _, pokemons_db, items_db, _ = self.loader.load_all()
+            self.context = self._build_context(player, world, pokemons_db, items_db, npcs_db)
             print(f"Spielstand '{save_name}' geladen.")
         except FileNotFoundError:
             print(f"Kein Spielstand '{save_name}' gefunden.")
 
     def save_game(self, save_name: str) -> None:
         """Speichert den aktuellen Spielstand"""
-        if self.player is None or self.world is None:
+        if self.context is None:
             print("Kein aktives Spiel zum Speichern.")
             return
-        self.save_manager.save_game(self.player, self.world, save_name)
+        self.save_manager.save_game(self.context, save_name)
 
     def run(self) -> str:
         """Spielloop - läuft bis der Spieler quit oder menu eingibt.
@@ -69,25 +67,21 @@ class Game:
             "quit" wenn das Spiel beendet werden soll
             "menu" wenn ins Hauptmenü zurückgekehrt werden soll
         """
-        if self.player is None or self.world is None:
+        if self.context is None:
             print("Fehler: Spiel nicht initialisiert.")
             return "quit"
 
         while True:
             try:
-                raw_input = input(f"\n[{self.player.name}] > ")
+                raw_input = input(f"\n[{self.context.player.name}] > ")
                 result = parse_command(
                     raw_input,
-                    self.player,
-                    self.world,
-                    self.npcs_db,
+                    self.context,
                     save_callback=self.save_game,
                     load_callback=self.load_game
                 )
-                if result == "quit":
-                    return "quit"
-                if result == "menu":
-                    return "menu"
+                if result in ("quit", "menu"):
+                    return result
             except KeyboardInterrupt:
                 print("\nSpiel unterbrochen.")
                 return "quit"

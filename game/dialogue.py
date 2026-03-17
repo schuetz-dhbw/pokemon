@@ -1,13 +1,14 @@
+from game.context import GameContext
 from models.characters.npc import NPC
-from models.characters.player import Player
-from views.styles import info
+from models.item import Item
+from views.styles import info, important
 
 
 def _find_node(npc: NPC, node_id: str) -> dict | None:
     return next((n for n in npc.dialogue if n["id"] == node_id), None)
 
 
-def _execute_action(action: dict, npc: NPC, player: Player) -> None:
+def _execute_action(action: dict, npc: NPC, ctx: GameContext) -> None:
     """Führt eine Dialogue-Aktion aus.
 
     Unterstützte Aktionen:
@@ -23,33 +24,64 @@ def _execute_action(action: dict, npc: NPC, player: Player) -> None:
             npc_item = next((i for i in npc.inventory if i.id == item_id), None)
             if npc_item is None or npc_item.quantity <= 0:
                 return
-            existing = next((i for i in player.inventory if i.id == item_id), None)
+            existing = next((i for i in ctx.player.inventory if i.id == item_id), None)
             if existing:
                 existing.quantity += npc_item.quantity
             else:
-                player.inventory.append(npc_item)
+                ctx.player.inventory.append(npc_item.copy())
             npc_item.quantity = 0
             print(info(f"Du hast {npc_item.name} erhalten!"))
 
         case "heal_team":
-            for pokemon in player.team:
+            for pokemon in ctx.player.team:
                 pokemon.current_stats.hp = pokemon.base_stats.hp
-            if player.team:
+            if ctx.player.team:
                 print(info("Deine Pokémon wurden vollständig geheilt!"))
 
         case "give_pokemon":
             pokemon_id = action["pokemon_id"]
+            if len(ctx.player.team) >= 6:
+                print(important("Dein Team ist voll! Du kannst kein weiteres Pokémon aufnehmen."))
+                return
+            poke_data = ctx.pokemons_db.get(pokemon_id)
+            if poke_data is None:
+                print(important(f"[Fehler: Pokémon {pokemon_id} nicht in DB]"))
+                return
+            from utils.data_loader import DataLoader
+            loader = DataLoader()
+            pokemon = loader.create_pokemon_from_data(poke_data)
+            ctx.player.team.append(pokemon)
             npc.visited = True
-            # Platzhalter – wird nach GameContext-Umbau implementiert
-            print(info(f"[Pokemon {pokemon_id} erhalten – noch nicht implementiert]"))
+            print(info(f"Du hast {pokemon.name} erhalten!"))
 
-def run_dialogue(npc: NPC, player: Player) -> None:
+def _check_condition(condition: dict, ctx: GameContext) -> bool:
+    """Prüft ob die Voraussetzung für eine Aktion gegeben ist.
+
+    Unterstützte Checks:
+    - has_pokemons:      Player hat mind. ein Pokémon im Team
+    - has_pokemon:       Player hat ein bestimmtes Pokémon im Team
+    - has_item:          Player hat ein bestimmtes Item im Inventar
+    - visited_npc:       Player hat einen bestimmten NPC bereits besucht
+    """
+    match condition["type"]:
+        case "has_pokemons":
+            return len(ctx.player.team) > 0
+        case "has_pokemon":
+            return any(i.id == condition["pokemon_id"] for i in ctx.player.team)
+        case "has_item":
+            return any(i.id == condition["item_id"] for i in ctx.player.inventory)
+        case "visited_npc":
+            npc = ctx.npcs_db.get(condition["npc_id"])
+            return npc.visited if npc else False
+        case _:
+            return True
+
+def run_dialogue(npc: NPC, ctx: GameContext) -> None:
     if not npc.dialogue:
         print(f"{npc.name}: ...")
         return
 
-    # visited-Knoten überschreibt start, falls vorhanden
-    start_id = "visited" if npc.visited else "start"
+    start_id = npc.current_node
     node = _find_node(npc, start_id)
     if node is None:
         node = _find_node(npc, "start")  # Fallback
@@ -59,14 +91,26 @@ def run_dialogue(npc: NPC, player: Player) -> None:
         return
 
     while node is not None and node["id"] != "end":
-        text = node["text"].format(player_name=player.name)
+        text = node["text"].format(player_name=ctx.player.name)
         print(f"\n{npc.name}:\n{text}")
 
         if "choices" not in node:
             input("[Enter drücken um fortzufahren]")
 
         if "action" in node:
-            _execute_action(node["action"], npc, player)
+            _execute_action(node["action"], npc, ctx)
+
+        if "auto_branch" in node:
+            next_id = None
+            for branch in node["auto_branch"]:
+                if "condition" not in branch or _check_condition(branch["condition"], ctx):
+                    next_id = branch["next"]
+                    break
+            node = _find_node(npc, next_id) if next_id and next_id != "end" else None
+            continue
+
+        if "next_start" in node:
+            npc.current_node = node["next_start"]
 
         if "choices" in node:
             choices = node["choices"]
@@ -76,8 +120,11 @@ def run_dialogue(npc: NPC, player: Player) -> None:
                 answer = input("> ").strip().lower()
                 match = next((c for c in choices if c["answer"].lower() == answer), None)
                 if match:
+                    if "condition" in match and not _check_condition(match["condition"], ctx):
+                        print(important("Diese Option steht dir gerade nicht zur Verfügung."))
+                        continue
                     if "action" in match:
-                        _execute_action(match["action"], npc, player)
+                        _execute_action(match["action"], npc, ctx)
                     node = _find_node(npc, match["next"])
                     break
                 print(important(f"Bitte antworte mit: {options}"))
@@ -89,6 +136,3 @@ def run_dialogue(npc: NPC, player: Player) -> None:
             node = _find_node(npc, next_id)
         else:
             break
-
-    npc.visited = True
-    npc.current_node = "start"

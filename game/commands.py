@@ -1,23 +1,21 @@
 from game.dialogue import run_dialogue
-from models.characters.npc import NPC
-from models.characters.player import Player
-from models.world.world import World
+from game.context import GameContext
 from views.location_view import display_location
 
 
-def cmd_look(player: Player, world: World, npcs_db: dict[str, NPC]) -> None:
+def cmd_look(ctx: GameContext) -> None:
     """Zeigt die aktuelle Location als Karte mit Beschreibung"""
-    location = world.get_location(player.current_location)
+    location = ctx.world.get_location(ctx.player.current_location)
     if location is None:
         print("Fehler: Aktuelle Location nicht gefunden.")
         return
-    display_location(location, world, npcs_db)
+    display_location(location, ctx)
 
 
-def cmd_move(target_id: str, player: Player, world: World, npcs_db: dict[str, NPC]) -> None:
+def cmd_move(target_id: str, ctx: GameContext) -> None:
     """Bewegt den Spieler zu einer verbundenen Location
     """
-    location = world.get_location(player.current_location)
+    location = ctx.world.get_location(ctx.player.current_location)
     if location is None:
         print("Fehler: Aktuelle Location nicht gefunden.")
         return
@@ -36,51 +34,59 @@ def cmd_move(target_id: str, player: Player, world: World, npcs_db: dict[str, NP
         print(f"'{target_id}' ist von hier aus nicht erreichbar.")
         return
 
-    target = world.get_location(resolved_id)
+    target = ctx.world.get_location(resolved_id)
     if target is None:
         print(f"Fehler: Ziel-Location '{resolved_id}' nicht gefunden.")
         return
 
-    player.current_location = resolved_id
-    display_location(target, world, npcs_db)
+    ctx.player.current_location = resolved_id
+    display_location(target, ctx)
 
+def cmd_team(ctx: GameContext) -> None:
+    if not ctx.player.team:
+        print("Du hast noch keine Pokémon in deinem Team.")
+        return
+    print("\n=== Team ===")
+    for pokemon in ctx.player.team:
+        types = ", ".join(t.value for t in pokemon.types)
+        print(f"  {pokemon.name} (Lv.{pokemon.level}) – {types} – HP: {pokemon.current_stats.hp}/{pokemon.base_stats.hp}")
 
-def cmd_inventory(player: Player) -> None:
+def cmd_inventory(ctx: GameContext) -> None:
     """Zeigt das Inventar des Spielers"""
-    if not player.inventory:
+    if not ctx.player.inventory:
         print("Dein Inventar ist leer.")
         return
 
     print("\n=== Inventar ===")
-    for item in player.inventory:
+    for item in ctx.player.inventory:
         print(f"  {item.quantity} x {item.name}")
 
 
-def cmd_talk(npc_id: str, player: Player, world: World, npcs_db: dict[str, NPC]) -> None:
+def cmd_talk(npc_id: str, ctx: GameContext) -> None:
     """Startet einen Dialog mit einem NPC in der aktuellen Location"""
-    location = world.get_location(player.current_location)
+    location = ctx.world.get_location(ctx.player.current_location)
     if location is None:
         print("Fehler: Aktuelle Location nicht gefunden.")
         return
     if npc_id not in location.npcs:
         print(f"Hier ist niemand mit dem Namen '{npc_id}'.")
         return
-    npc = npcs_db.get(npc_id)
+    npc = ctx.npcs_db.get(npc_id)
     if npc is None:
         print(f"Fehler: NPC '{npc_id}' nicht in der Datenbank.")
         return
-    run_dialogue(npc, player)
+    run_dialogue(npc, ctx)
 
 
-def cmd_npcs(player: Player, world: World, npcs_db: dict[str, NPC]) -> None:
+def cmd_npcs(ctx: GameContext) -> None:
     """Listet alle NPCs in der aktuellen Location auf"""
-    location = world.get_location(player.current_location)
+    location = ctx.world.get_location(ctx.player.current_location)
     if location is None or not location.npcs:
         print("Hier ist niemand.")
         return
     print("\nPersonen hier:")
     for npc_id in location.npcs:
-        npc = npcs_db.get(npc_id)
+        npc = ctx.npcs_db.get(npc_id)
         name = npc.name if npc else npc_id
         desc = f" – {npc.description}" if npc and npc.description else ""
         print(f"  {name} (talk {npc_id}){desc}")
@@ -88,9 +94,7 @@ def cmd_npcs(player: Player, world: World, npcs_db: dict[str, NPC]) -> None:
 
 def parse_command(
     raw_input: str,
-    player: Player,
-    world: World,
-    npcs_db: dict[str, NPC],
+    ctx: GameContext,
     save_callback,
     load_callback
 ) -> str:
@@ -118,22 +122,25 @@ def parse_command(
 
     match command:
         case "look" | "schau":
-            cmd_look(player, world, npcs_db)
+            cmd_look(ctx)
 
         case "go" | "gehe":
             if args:
-                cmd_move(args[0], player, world, npcs_db)
+                cmd_move(args[0], ctx)
             else:
                 print("Wohin möchtest du gehen? Tippe 'look' um Verbindungen zu sehen.")
 
         case "talk" | "rede":
             if args:
-                cmd_talk(args[0], player, world, npcs_db)
+                cmd_talk(args[0], ctx)
             else:
-                cmd_npcs(player, world, npcs_db)
+                cmd_npcs(ctx)
+
+        case "team":
+            cmd_team(ctx)
 
         case "inventory" | "inventar" | "inv":
-            cmd_inventory(player)
+            cmd_inventory(ctx)
 
         case "save" | "speichern":
             save_name = args[0] if args else "savegame"
@@ -166,7 +173,7 @@ def print_help() -> None:
     print("  look / schau                  - Aktuelle Location anzeigen")
     print("  go / gehe <ziel>              - Zu einer Location navigieren (z.B. 'go route_01')")
     print("  talk / rede <npc>             - Mit einem NPC sprechen (z.B. 'talk mom')")
-    print("  talk / rede                   - Alle NPCs in der Location anzeigen")
+    print("  team                          - Team anzeigen")
     print("  inventory / inventar / inv    - Inventar anzeigen")
     print("  save / speichern [name]       - Spielstand speichern")
     print("  load / laden [name]           - Spielstand laden")

@@ -39,12 +39,14 @@
       {
         "id": "chosen_pokemon",
         "text": "Oh, gute Wahl, {player_name}!\nEine unglaubliche Reise in die Welt der Pokémon erwartet Dich! Eine Welt voller Wunder, Abenteuer und Geheimnisse! Kurz gesagt, ein Traum wird wahr!",
+        "next_start": "give_pokedex",
         "next": "give_pokedex"
       },
       {
         "id": "give_pokedex",
         "text": "Nimm noch diesen Pokédex mit. Er wird dir helfen, alle Pokémon zu katalogisieren.",
         "action": {"type": "give_item", "item_id": "pokedex"},
+        "next_start": "visited",
         "next": "end"
       },
       {
@@ -80,20 +82,21 @@
       {
         "id": "ask_visit_oak",
         "text": "Warst du schon bei Professor Eich?",
-        "choices": [
-          {"answer": "ja",   "next": "visited_oak"},
-          {"answer": "nein", "next": "not_visited_oak"}
-        ]
+         "auto_branch": [
+           {"condition": {"type": "has_pokemons"}, "next": "visited_oak"},
+           {"next": "not_visited_oak"}
+         ]
       },
       {
         "id": "visited_oak",
-        "text": "Wunderbar! Dann bist du ja schon gut ausgerüstet. Hier, nimm das mit auf deine Reise!",
+        "text": "Ah, wunderbar! Ich sehe, du hast bereits dein erstes Pokémon von Prof. Eich bekommen. Hier, nimm das mit auf deine Reise!",
         "action": {"type": "give_item", "item_id": "potion_heal"},
+        "next_start": "visited",
         "next": "heal"
       },
       {
         "id": "not_visited_oak",
-        "text": "Gehe zunächst zu Professor Eich im Labor. Er wartet auf dich!",
+        "text": "Oh, nein, anscheinend warst du noch nicht bei ihm. Gehe zunächst zu Professor Eich im Labor. Er wartet auf dich!",
         "next": "end"
       },
       {
@@ -105,6 +108,7 @@
       {
         "id": "farewell",
         "text": "Wunderbar, nun seid ihr alle wieder erholt. Wenn du nochmal eine Pause brauchst, komm jederzeit wieder vorbei.\nBis bald, mein Kind! Pass auf dich und deine Pokémon auf!",
+        "next_start": "visited",
         "next": "end"
       }
     ],

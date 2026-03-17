@@ -17,4 +17,3 @@ class NPC(Character):
     description: str = "" # Beschreibung für look / inspect
     dialogue: List[dict] = field(default_factory=list)  # Dialogue-Tree (Liste von Knoten)
     current_node: str = "start"  # Aktueller Knoten im Dialogue-Tree
-    visited: bool = False  # Wurde der NPC schon angesprochen?
