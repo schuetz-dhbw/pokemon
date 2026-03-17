@@ -133,5 +133,6 @@ def print_help() -> None:
     print("  inventory / inventar / inv    - Inventar anzeigen")
     print("  save / speichern [name]       - Spielstand speichern")
     print("  load / laden [name]           - Spielstand laden")
+    print("  menu / hauptmenu              - Hauptmenu aufrufen")
     print("  help / hilfe / ?              - Diese Übersicht")
     print("  quit / beenden                - Spiel beenden")

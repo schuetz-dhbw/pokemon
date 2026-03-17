@@ -15,7 +15,7 @@ TILE_SYMBOLS: dict[TileType, str] = {
     TileType.WALL:       "➖",
     TileType.FENCE:      "✖️️",
     TileType.DOOR:       "🚪",
-    TileType.BUILDING:    "🏠"
+    TileType.BUILDING:   "🏠"
 }
 
 # Himmelsrichtungen (englische Keys) mit Pfeilsymbolen für den Border
