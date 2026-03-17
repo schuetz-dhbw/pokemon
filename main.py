@@ -1,5 +1,9 @@
 from views.intro import play_intro
 from game.game import Game
+try:
+    import readline
+except ImportError:
+    pass
 
 play_intro()
 
