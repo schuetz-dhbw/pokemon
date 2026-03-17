@@ -63,7 +63,7 @@ def _apply_exits_to_border(
 
 def render_location(location: Location) -> str:
     """Rendert eine Location als ASCII-Grid.
-    size beschreibt den inneren Bereich, der Border wird außen drum gelegt.
+    size beschreibt den inneren Bereich, der Border wird außen herum gelegt.
 
     Args:
         location: Die zu rendernde Location
@@ -112,11 +112,18 @@ def _get_target_name(target_id: str, world: World) -> str:
     return target.name if target else target_id
 
 
-def display_location(location: Location, world: World) -> None:
-    """Gibt eine Location mit Name, ASCII-Grid, Beschreibung und Verbindungen aus"""
+def display_location(location: Location, world: World, npcs_db: dict | None = None) -> None:
+    """Gibt eine Location mit Name, ASCII-Grid, Beschreibung, NPCs und Verbindungen aus"""
     print(f"\n=== {location.name} ===")
     print(render_location(location))
     print(f"\n{location.description}")
+
+    if location.npcs and npcs_db:
+        print("\nFolgende Personen befinden sich hier:")
+        for npc_id in location.npcs:
+            npc = npcs_db.get(npc_id)
+            name = npc.name if npc else npc_id
+            print(f"  👤 {name} (talk {npc_id})")
 
     if not location.connections:
         return

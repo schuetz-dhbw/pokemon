@@ -1,15 +1,57 @@
 [
   {
-    "id": "professor_oak",
+    "id": "prof_oak",
     "name": "Professor Eich",
     "description": "Ein freundlicher Pokémon-Professor mit grauem Haar und weißem Kittel.",
     "npc_type": "Questgeber",
     "dialogue": [
-      "Hallo! Herzlich Willkommen in der Welt der Pokémon!\nMein Name ist Eich. Man nennt mich den Pokémon-Professor. Wie lautet dein Name?",
-      "Diese Welt wird von Wesen bewohnt, die man Pokémon nennt. Für manche Leute sind Pokémon Haustiere, andere tragen Kämpfe mit ihnen aus. Ich selbst habe mein Hobby zum Beruf gemacht und studiere Pokémon.",
-      "Wähle dein erstes Pokémon aus. Du hast die Wahl zwischem Bisasam, Glumanda und Schiggy.",
-      "Oh, gute Wahl! Eine unglaubliche Reise in die Welt der Pokémon erwartet Dich! Eine Welt voller Wunder, Abenteuer und Geheimnisse! Kurz gesagt, ein Traum wird wahr!,",
-      "Nimm noch diesen Pokédex mit. Er wird dir helfen, alle Pokémon zu katalogisieren."
+      {
+        "id": "start",
+        "text": "Hallo! Herzlich Willkommen in der Welt der Pokémon!\nMein Name ist Eich. Man nennt mich den Pokémon-Professor.",
+        "next": "explain"
+      },
+      {
+        "id": "explain",
+        "text": "Diese Welt wird von Wesen bewohnt, die man Pokémon nennt.\nFür manche Leute sind Pokémon Haustiere, andere tragen Kämpfe mit ihnen aus.\nIch selbst habe mein Hobby zum Beruf gemacht und studiere Pokémon.",
+        "next": "choose"
+      },
+      {
+        "id": "choose",
+        "text": "Wähle dein erstes Pokémon aus. Du hast die Wahl zwischem Bisasam, Glumanda und Schiggy.\nWelches möchtest du haben?",
+        "choices": [
+          {
+            "answer": "bisasam",
+            "action": {"type": "give_pokemon", "pokemon_id": 1},
+            "next": "chosen_pokemon"
+          },
+          {
+            "answer": "glumanda",
+            "action": {"type": "give_pokemon", "pokemon_id": 4},
+            "next": "chosen_pokemon"
+          },
+          {
+            "answer": "schiggy",
+            "action": {"type": "give_pokemon", "pokemon_id": 7},
+            "next": "chosen_pokemon"
+          }
+        ]
+      },
+      {
+        "id": "chosen_pokemon",
+        "text": "Oh, gute Wahl, {player_name}!\nEine unglaubliche Reise in die Welt der Pokémon erwartet Dich! Eine Welt voller Wunder, Abenteuer und Geheimnisse! Kurz gesagt, ein Traum wird wahr!",
+        "next": "give_pokedex"
+      },
+      {
+        "id": "give_pokedex",
+        "text": "Nimm noch diesen Pokédex mit. Er wird dir helfen, alle Pokémon zu katalogisieren.",
+        "action": {"type": "give_item", "item_id": "pokedex"},
+        "next": "end"
+      },
+      {
+        "id": "visited",
+        "text": "Hallo {player_name}! Wie läuft deine Reise? Schau dir die Welt an und fange viele Pokémon!",
+        "next": "end"
+}
     ],
     "team": [],
     "inventory": [
@@ -25,9 +67,46 @@
     "description": "Deine liebevolle Mutter, die sich immer um dich und deine Pokémon kümmert.",
     "npc_type": "Heiler",
     "dialogue": [
-      "Willkommen zu Hause, mein Kind!",
-      "Komm, ruh dich erstmal aus, während ich mich um deine Pokémon kümmere und sie heile.",
-      "Hier, nimm diesen Heiltrank mit auf deine Reise!"
+      {
+        "id": "start",
+        "text": "Willkommen zu Hause, mein Kind!",
+        "next": "ask_visit_oak"
+      },
+      {
+        "id": "visited",
+        "text": "Willkommen zurück, mein Kind!",
+        "next": "heal"
+      },
+      {
+        "id": "ask_visit_oak",
+        "text": "Warst du schon bei Professor Eich?",
+        "choices": [
+          {"answer": "ja",   "next": "visited_oak"},
+          {"answer": "nein", "next": "not_visited_oak"}
+        ]
+      },
+      {
+        "id": "visited_oak",
+        "text": "Wunderbar! Dann bist du ja schon gut ausgerüstet. Hier, nimm das mit auf deine Reise!",
+        "action": {"type": "give_item", "item_id": "potion_heal"},
+        "next": "heal"
+      },
+      {
+        "id": "not_visited_oak",
+        "text": "Gehe zunächst zu Professor Eich im Labor. Er wartet auf dich!",
+        "next": "end"
+      },
+      {
+        "id": "heal",
+        "text": "Komm, ruh dich erstmal aus. Ich kümmere mich derweil um deine Pokémon.",
+        "action": {"type": "heal_team"},
+        "next": "farewell"
+      },
+      {
+        "id": "farewell",
+        "text": "Wunderbar, nun seid ihr alle wieder erholt. Wenn du nochmal eine Pause brauchst, komm jederzeit wieder vorbei.\nBis bald, mein Kind! Pass auf dich und deine Pokémon auf!",
+        "next": "end"
+      }
     ],
     "team": [],
     "inventory": [

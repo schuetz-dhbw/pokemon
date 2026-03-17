@@ -1,3 +1,4 @@
+from models.characters.npc import NPC
 from models.characters.player import Player
 from models.item import Item, ItemType
 from models.world.world import World
@@ -15,10 +16,15 @@ class Game:
         self.save_manager = SaveManager(saves_dir=saves_dir)
         self.world: World | None = None
         self.player: Player | None = None
+        self.pokemons_db: dict[int, dict] = {}
+        self.items_db: dict[str, Item] = {}
+        self.npcs_db: dict[str, NPC] = {}
 
     def new_game(self, player_name: str) -> None:
         """Startet ein neues Spiel"""
-        self.world, _pokemons_db, _items_db, _npcs_db = self.loader.load_all()
+        self.world, self.pokemons_db, self.items_db, self.npcs_db = self.loader.load_all()
+
+        home = self.world.get_location("player_home")
 
         starter_pokeball = Item(
             id="pokeball",
@@ -38,14 +44,13 @@ class Game:
 
         start = self.world.get_location(self.world.starting_location)
         if start:
-            display_location(start, self.world)
+            display_location(start, self.world, self.npcs_db)
 
     def load_game(self, save_name: str) -> None:
         """Lädt einen Spielstand"""
         try:
-            self.player, self.world = self.save_manager.load_game(
-                save_name, self.loader
-            )
+            self.player, self.world = self.save_manager.load_game(save_name, self.loader)
+            self.world, self.pokemons_db, self.items_db, self.npcs_db = self.loader.load_all()
             print(f"Spielstand '{save_name}' geladen.")
         except FileNotFoundError:
             print(f"Kein Spielstand '{save_name}' gefunden.")
@@ -75,6 +80,7 @@ class Game:
                     raw_input,
                     self.player,
                     self.world,
+                    self.npcs_db,
                     save_callback=self.save_game,
                     load_callback=self.load_game
                 )
@@ -113,7 +119,7 @@ class Game:
                     self.load_game(save_name)
 
                 case _:
-                    player_name = input("Prof. Eich:\nWie ist dein Name?\nSpieler:\n> ").strip()
+                    player_name = input("Wie lautet dein Name, Trainer?\n> ").strip()
                     self.new_game(player_name)
 
             result = self.run()

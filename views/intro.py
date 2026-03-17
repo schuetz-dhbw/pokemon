@@ -7,4 +7,4 @@ def play_intro():
           "██║     ╚██████╔╝██║  ██╗███████╗██║ ╚═╝ ██║╚██████╔╝██║ ╚████║\n"
           "╚═╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝\n")
 
-    print("Komm und schnapp sie dir!\nKomm und schnapp sie dir!\n\n")
+    print("Komm und schnapp sie dir!\n\n")

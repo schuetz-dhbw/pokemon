@@ -15,4 +15,6 @@ class NPC(Character):
     """ Non-Player-Character mit spezifischem Typ und Dialogen """
     npc_type: NPCType = NPCType.TRAINER
     description: str = "" # Beschreibung für look / inspect
-    dialogue: List[str] = field(default_factory=list)
+    dialogue: List[dict] = field(default_factory=list)  # Dialogue-Tree (Liste von Knoten)
+    current_node: str = "start"  # Aktueller Knoten im Dialogue-Tree
+    visited: bool = False  # Wurde der NPC schon angesprochen?
