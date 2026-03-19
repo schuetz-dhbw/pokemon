@@ -16,8 +16,13 @@ TILE_SYMBOLS: dict[TileType, str] = {
     TileType.WALL:       "➖",
     TileType.FENCE:      "✖️️",
     TileType.DOOR:       "🚪",
-    TileType.BUILDING:   "🏠"
+    TileType.BUILDING:   "🏠",
+    TileType.CONTAINER:  "🗃️"
 }
+
+# Symbole für NPCs und Items
+NPC_SYMBOL = "👤"
+ITEM_SYMBOL = "🎒"
 
 # Himmelsrichtungen (englische Keys) mit Pfeilsymbolen für den Border
 DIRECTION_SYMBOLS: dict[str, str] = {
@@ -86,6 +91,14 @@ def render_location(location: Location) -> str:
         if 0 <= x < inner_width and 0 <= y < inner_height:
             grid[y][x] = TILE_SYMBOLS[tile_type]
 
+    for npc_id, (x, y) in location.npc_positions.items():
+        if 0 <= x < inner_width and 0 <= y < inner_height:
+            grid[y][x] = NPC_SYMBOL
+
+    for item_id, (x, y) in location.item_positions.items():
+        if 0 <= x < inner_width and 0 <= y < inner_height:
+            grid[y][x] = ITEM_SYMBOL
+
     # Border drum herum legen (falls auto_boundary)
     if location.auto_boundary:
         boundary_tile = DEFAULT_BOUNDARIES.get(location.type)
@@ -119,8 +132,26 @@ def display_location(location: Location, ctx: GameContext) -> None:
     print(render_location(location))
     print(f"\n{location.description}")
 
+    # Sichtbare Items
+    open_items = [i for i in location.items if not i.get("hidden")]
+    if open_items:
+        print("\nGegenstände hier:")
+        for item in open_items:
+            item_def = ctx.items_db.get(item["item_id"])
+            name = item_def.name if item_def else item["item_id"]
+            qty = item.get("quantity", 1)
+            print(f"🎒 {qty}x {name} (take {item['item_id']})")
+
+    # Container
+    containers = [t for t in location.special_tiles if t["type"] == "Container"]
+    if containers:
+        print("\nObjekte hier:")
+        for c in containers:
+            container_name = c.get("name", "???")
+            print(f"🗃️  {container_name} (inspect {container_name.lower()})")
+
     if location.npcs:
-        print("\nFolgende Personen befinden sich hier:")
+        print("\nPersonen hier:")
         for npc_id in location.npcs:
             npc = ctx.npcs_db.get(npc_id)
             name = npc.name if npc else npc_id

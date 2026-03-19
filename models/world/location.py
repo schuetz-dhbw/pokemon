@@ -45,3 +45,5 @@ class Location:
     npcs: List[str] = field(default_factory=list) # Liste mit IDs der NPCs
     items: List[dict] = field(default_factory=list) # {"item_id": str, "quantity": int}
     connections: Dict[str, str] = field(default_factory=dict) # z.B. {"north": "route_1"}
+    npc_positions: dict[str, tuple[int, int]] = field(default_factory=dict)
+    item_positions: dict[str, tuple[int, int]] = field(default_factory=dict)

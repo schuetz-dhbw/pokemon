@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 from typing import Any
 
@@ -146,6 +147,22 @@ class DataLoader:
             evolution=evolution
         )
 
+    @staticmethod
+    def assign_random_positions(location: Location) -> None:
+        """Weist NPCs und Items zufällige Positionen im inneren Bereich zu"""
+        width, height = location.size
+        occupied = {(t["x"], t["y"]) for t in location.special_tiles}
+        free = [(x, y) for x in range(width) for y in range(height) if (x, y) not in occupied]
+        random.shuffle(free)
+
+        for npc_id in location.npcs:
+            if free:
+                location.npc_positions[npc_id] = free.pop()
+
+        for item in location.items:
+            if free:
+                location.item_positions[item["item_id"]] = free.pop()
+
     def load_npcs(self, items_db: dict[str, Item]) -> dict[str, NPC]:
         """Lädt alle NPCs aus npcs.json"""
         npcs_data = self.load_json("npcs.json")
@@ -201,6 +218,12 @@ class DataLoader:
                     tile_dict["habitat"] = tile_data["habitat"]
                 if "door_target" in tile_data:
                     tile_dict["door_target"] = tile_data["door_target"]
+                if "name" in tile_data:
+                    tile_dict["name"] = tile_data["name"]
+                if "description" in tile_data:
+                    tile_dict["description"] = tile_data["description"]
+                if "items" in tile_data:
+                    tile_dict["items"] = tile_data["items"]
 
                 special_tiles.append(tile_dict)
 
@@ -221,6 +244,7 @@ class DataLoader:
                 connections=loc_data.get("connections", {})
             )
             locations[location.id] = location
+            self.assign_random_positions(location)
 
         return locations
 

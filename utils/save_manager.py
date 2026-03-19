@@ -7,6 +7,7 @@ from game.context import GameContext
 from models.characters.player import Player
 from models.item import Item
 from models.pokemon.pokemon import Pokemon
+from models.world.tile import TileType
 from models.world.world import World
 from utils.data_loader import DataLoader
 
@@ -64,6 +65,9 @@ class SaveManager:
         # World-State wiederherstellen
         self._apply_world_state(world, save_data["world_state"], npcs_db)
 
+        for location in world.locations.values():
+            data_loader.assign_random_positions(location)
+
         return player, world, npcs_db, items_db, pokemons_db
 
     @staticmethod
@@ -112,8 +116,13 @@ class SaveManager:
                     npc_states[npc_id] = {"current_node": npc.current_node}
             world_state["locations"][loc_id] = {
                 "items": location.items,
+                "container_states": [
+                    {"name": t["name"], "items": t.get("items", [])}
+                    for t in location.special_tiles
+                    if t["type"] == TileType.CONTAINER.value
+                ],
                 "npcs": location.npcs,
-                "npc_states": npc_states
+                "npc_states": npc_states,
             }
         return world_state
 
@@ -171,6 +180,15 @@ class SaveManager:
             if loc_id in world.locations:
                 location = world.locations[loc_id]
                 location.items = loc_state["items"]
+                for container_state in loc_state.get("container_states", []):
+                    container = next(
+                        (t for t in location.special_tiles
+                         if t["type"] == TileType.CONTAINER.value
+                         and t.get("name") == container_state["name"]),
+                        None
+                    )
+                    if container:
+                        container["items"] = container_state["items"]
                 location.npcs = loc_state["npcs"]
                 for npc_id, npc_state in loc_state.get("npc_states", {}).items():
                     npc = npcs_db.get(npc_id)

@@ -1,14 +1,21 @@
 from game.dialogue import run_dialogue
 from game.context import GameContext
 from game.game_result import GameResult
+from models.world.tile import TileType
 from views.location_view import display_location
+from views.styles import info
 
-
-def cmd_look(ctx: GameContext) -> None:
-    """Zeigt die aktuelle Location als Karte mit Beschreibung"""
+def _get_current_location(ctx: GameContext):
+    """Gibt die aktuelle Location zurück oder None bei Fehler"""
     location = ctx.world.get_location(ctx.player.current_location)
     if location is None:
         print("Fehler: Aktuelle Location nicht gefunden.")
+    return location
+
+def cmd_look(ctx: GameContext) -> None:
+    """Zeigt die aktuelle Location als Karte mit Beschreibung"""
+    location = _get_current_location(ctx)
+    if location is None:
         return
     display_location(location, ctx)
 
@@ -16,9 +23,8 @@ def cmd_look(ctx: GameContext) -> None:
 def cmd_move(target_id: str, ctx: GameContext) -> None:
     """Bewegt den Spieler zu einer verbundenen Location
     """
-    location = ctx.world.get_location(ctx.player.current_location)
+    location = _get_current_location(ctx)
     if location is None:
-        print("Fehler: Aktuelle Location nicht gefunden.")
         return
 
     # Ziel-ID ermitteln: erst als Key prüfen, dann als Value
@@ -62,12 +68,96 @@ def cmd_inventory(ctx: GameContext) -> None:
     for item in ctx.player.inventory:
         print(f"  {item.quantity} x {item.name}")
 
+def cmd_take(args: list[str], ctx: GameContext) -> None:
+    """Nimmt Items aus der aktuellen Location ins Inventar"""
+    if not args:
+        print("Was möchtest du aufnehmen?")
+        return
+
+    location = _get_current_location(ctx)
+    if location is None:
+        return
+
+    taken = []
+    not_found = []
+
+    for item_id in args:
+        container = next(
+            (t for t in location.special_tiles
+             if t["type"] == TileType.CONTAINER.value
+             and t.get("name", "").lower() == item_id.lower()),
+            None
+        )
+        if container:
+            print(f"'{item_id}' kann nicht mitgenommen werden.")
+            continue
+
+        item_entry = next((i for i in location.items if i["item_id"] == item_id and not i.get("hidden")), None)
+        if item_entry is None:
+            not_found.append(item_id)
+            continue
+
+        item_def = ctx.items_db.get(item_id)
+        if item_def is None:
+            not_found.append(item_id)
+            continue
+
+        qty = item_entry.get("quantity", 1)
+
+        # Ins Inventar
+        existing = next((i for i in ctx.player.inventory if i.id == item_id), None)
+        if existing:
+            existing.quantity += qty
+        else:
+            ctx.player.inventory.append(item_def.copy(quantity=qty))
+
+        location.items.remove(item_entry)
+        taken.append(f"{qty}x {item_def.name}")
+
+    if taken:
+        print(info(f"Du hast aufgehoben: {', '.join(taken)}"))
+    for item_id in not_found:
+        print(f"'{item_id}' ist hier nicht zu finden.")
+
+def cmd_inspect(name: str, ctx: GameContext) -> None:
+    """Untersucht einen Container und macht seinen Inhalt aufnehmbar"""
+    location = _get_current_location(ctx)
+    if location is None:
+        return
+
+    container = next(
+        (t for t in location.special_tiles
+         if t["type"] == TileType.CONTAINER.value and t.get("name", "").lower() == name.lower()),
+        None
+    )
+    if container is None:
+        print(f"Hier gibt es kein '{name}'.")
+        return
+
+    desc = container.get("description", "")
+    if desc:
+        print(f"\n{desc}")
+
+    items = container.get("items", [])
+    if not items:
+        print("Hier ist nichts zu finden.")
+        return
+
+    print("Darin befindet sich:")
+    for item_entry in items:
+        item_def = ctx.items_db.get(item_entry["item_id"])
+        name_str = item_def.name if item_def else item_entry["item_id"]
+        qty = item_entry.get("quantity", 1)
+        print(f"  🎒 {qty}x {name_str} (take {item_entry['item_id']})")
+
+    # Inhalt in location.items verschieben → jetzt mit take aufnehmbar
+    location.items.extend(items)
+    container["items"] = []
 
 def cmd_talk(npc_id: str, ctx: GameContext) -> None:
     """Startet einen Dialog mit einem NPC in der aktuellen Location"""
-    location = ctx.world.get_location(ctx.player.current_location)
+    location = _get_current_location(ctx)
     if location is None:
-        print("Fehler: Aktuelle Location nicht gefunden.")
         return
     if npc_id not in location.npcs:
         print(f"Hier ist niemand mit dem Namen '{npc_id}'.")
@@ -81,7 +171,7 @@ def cmd_talk(npc_id: str, ctx: GameContext) -> None:
 
 def cmd_npcs(ctx: GameContext) -> None:
     """Listet alle NPCs in der aktuellen Location auf"""
-    location = ctx.world.get_location(ctx.player.current_location)
+    location = _get_current_location(ctx)
     if location is None or not location.npcs:
         print("Hier ist niemand.")
         return
@@ -103,9 +193,7 @@ def parse_command(
 
     Args:
         raw_input: Rohe Eingabe des Spielers
-        player: Spieler-Objekt
-        world: Welt-Objekt
-        npcs_db: Dict aller geladenen NPC-Objekte
+        ctx: GameContext enthält alle relevanten Spieldaten
         save_callback: Funktion zum Speichern des Spielstands
         load_callback: Funktion zum Laden des Spielstands
 
@@ -143,6 +231,15 @@ def parse_command(
         case "inventory" | "inventar" | "inv":
             cmd_inventory(ctx)
 
+        case "take" | "nimm":
+            cmd_take(args, ctx)
+
+        case "inspect" | "untersuche":
+            if args:
+                cmd_inspect(" ".join(args), ctx)
+            else:
+                print("Was möchtest du untersuchen?")
+
         case "save" | "speichern":
             save_name = args[0] if args else "savegame"
             save_callback(save_name)
@@ -176,6 +273,8 @@ def print_help() -> None:
     print("  talk / rede <npc>             - Mit einem NPC sprechen (z.B. 'talk mom')")
     print("  team                          - Team anzeigen")
     print("  inventory / inventar / inv    - Inventar anzeigen")
+    print("  take / nimm <item>            - Item aufnehmen (mehrere: 'take pokeball heiltrank')")
+    print("  inspect / untersuche <objekt> - Objekt untersuchen")
     print("  save / speichern [name]       - Spielstand speichern")
     print("  load / laden [name]           - Spielstand laden")
     print("  menu / hauptmenu              - Hauptmenu aufrufen")

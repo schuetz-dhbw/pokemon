@@ -43,11 +43,13 @@
     ],
     "auto_boundary": true,
     "special_tiles": [
+      {"x": 1, "y": 2, "type": "Tür", "door_target": "city_alabastia"},
       {
-        "x": 1,
-        "y": 2,
-        "type": "Tür",
-        "door_target": "city_alabastia"
+        "x": 2, "y": 0, "type": "Container",
+        "name": "Schrank", "description": "Ein alter Holzschrank. Darin liegt deine Ausrüstung für die Reise.",
+        "items": [
+          {"item_id": "map", "quantity": 1}
+        ]
       }
     ],
     "connections": {
@@ -56,12 +58,7 @@
     "npcs": [
       "mom"
     ],
-    "items": [
-      {
-        "item_id": "map",
-        "quantity": 1
-      }
-    ]
+    "items": []
   },
   {
     "id": "oaks_lab",
@@ -104,7 +101,7 @@
       15
     ],
     "auto_boundary": true,
-        "special_tiles": [
+    "special_tiles": [
       {"x": 0, "y": 0, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
       {"x": 1, "y": 0, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
       {"x": 2, "y": 0, "type": "Hohes Gras", "encounter_rate": 0.7, "habitat": "Gras"},
@@ -182,7 +179,7 @@
     "special_tiles": [
       {"x": 2, "y": 2, "type": "Holz"},
       {"x": 3, "y": 2, "type": "Holz"}
-      ],
+    ],
     "connections": {
       "north": "city_alabastia"
     },

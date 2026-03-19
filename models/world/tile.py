@@ -20,6 +20,7 @@ class TileType(Enum):
     # Interaktiv
     DOOR = "Tür"
     BUILDING = "Gebäude"
+    CONTAINER = "Container"
 
 class HabitatType(Enum):
     """ Lebensraum für wilde Pokémon-Begegnungen """
