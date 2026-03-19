@@ -37,7 +37,7 @@ class SaveManager:
 
         print(f"Spielstand gespeichert: {filepath}")
 
-    def load_game(self, save_name: str, data_loader: DataLoader) -> tuple[Player, World, dict]:
+    def load_game(self, save_name: str, data_loader: DataLoader) -> tuple[Player, World, dict, dict, dict]:
         """Lädt einen Spielstand
 
         Args:
@@ -45,7 +45,7 @@ class SaveManager:
             data_loader: DataLoader-Instanz zum Laden der statischen Daten
 
         Returns:
-            Tuple mit (Player, World, NPCs-DB)
+            Tuple mit (Player, World, NPCs, Items, Pokemons)
         """
         filepath = self.saves_dir / f"{save_name}.json"
 
@@ -64,7 +64,7 @@ class SaveManager:
         # World-State wiederherstellen
         self._apply_world_state(world, save_data["world_state"], npcs_db)
 
-        return player, world, npcs_db
+        return player, world, npcs_db, items_db, pokemons_db
 
     @staticmethod
     def _serialize_player(player: Player) -> dict[str, Any]:

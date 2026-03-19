@@ -7,6 +7,15 @@ from models.pokemon.stats import Stats
 from models.world.tile import HabitatType
 
 @dataclass
+class Evolution:
+    """Entwicklungsdaten eines Pokémon"""
+    evolves_to: int
+    evolution_level: int
+
+
+
+
+@dataclass
 class Pokemon:
     """ Beschreibt ein Pokemon mit seinen Stats, Attacken und Eigenschaften """
     id: int
@@ -25,3 +34,6 @@ class Pokemon:
     habitats: List[HabitatType]
     catch_rate: int
     spawn_probability: float
+
+    # Evolution
+    evolution: Evolution | None = None

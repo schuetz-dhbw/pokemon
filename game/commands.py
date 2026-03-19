@@ -1,5 +1,6 @@
 from game.dialogue import run_dialogue
 from game.context import GameContext
+from game.game_result import GameResult
 from views.location_view import display_location
 
 
@@ -97,7 +98,7 @@ def parse_command(
     ctx: GameContext,
     save_callback,
     load_callback
-) -> str:
+) -> GameResult:
     """Parst und führt einen Befehl aus
 
     Args:
@@ -115,7 +116,7 @@ def parse_command(
     """
     parts = raw_input.strip().lower().split()
     if not parts:
-        return "continue"
+        return GameResult.CONTINUE
 
     command = parts[0]
     args = parts[1:]
@@ -152,19 +153,19 @@ def parse_command(
 
         case "menu" | "hauptmenu":
             print("Zurück ins Hauptmenü ...")
-            return "menu"
+            return GameResult.MENU
 
         case "help" | "hilfe" | "?":
             print_help()
 
         case "quit" | "beenden":
             print("Bis zum nächsten Mal!")
-            return "quit"
+            return GameResult.QUIT
 
         case _:
             print(f"Unbekannter Befehl: '{command}'. Tippe 'hilfe' für eine Übersicht.")
 
-    return "continue"
+    return GameResult.CONTINUE
 
 
 def print_help() -> None:

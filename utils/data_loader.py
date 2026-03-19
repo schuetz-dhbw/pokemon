@@ -5,7 +5,7 @@ from typing import Any
 from models.characters.npc import NPC, NPCType
 from models.item import Item, ItemType
 from models.pokemon.attack import Attack, AttackCategory, StatusEffect, StatusEffectType
-from models.pokemon.pokemon import Pokemon
+from models.pokemon.pokemon import Pokemon, Evolution
 from models.pokemon.pokemon_type import PokemonType
 from models.pokemon.stats import Stats
 from models.world.location import Location, LocationType
@@ -68,7 +68,8 @@ class DataLoader:
 
         return pokemons_db
 
-    def create_pokemon_from_data(self, poke_data: dict[str, Any], level: int = 5) -> Pokemon:
+    @staticmethod
+    def create_pokemon_from_data(poke_data: dict[str, Any], level: int = 5) -> Pokemon:
         """Erstellt eine Pokemon-Instanz aus Rohdaten
 
         Args:
@@ -124,6 +125,13 @@ class DataLoader:
         # Habitats parsen
         habitats = [HabitatType(h) for h in poke_data.get("habitat", [])]
 
+        # Evolution parsen
+        evolution_data = poke_data.get("evolution")
+        evolution = Evolution(
+            evolves_to=evolution_data["evolves_to"],
+            evolution_level=evolution_data["evolution_level"]
+        ) if evolution_data else None
+
         return Pokemon(
             id=poke_data["id"],
             name=poke_data["name"],
@@ -134,7 +142,8 @@ class DataLoader:
             attacks=attacks,
             habitats=habitats,
             catch_rate=poke_data["catch_rate"],
-            spawn_probability=poke_data["spawn_probability"]
+            spawn_probability=poke_data["spawn_probability"],
+            evolution=evolution
         )
 
     def load_npcs(self, items_db: dict[str, Item]) -> dict[str, NPC]:

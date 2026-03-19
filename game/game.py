@@ -1,5 +1,6 @@
 from game.commands import parse_command
 from game.context import GameContext
+from game.game_result import GameResult
 from models.characters.player import Player
 from models.item import Item, ItemType
 from utils.data_loader import DataLoader
@@ -15,7 +16,8 @@ class Game:
         self.save_manager = SaveManager(saves_dir=saves_dir)
         self.context: GameContext | None = None
 
-    def _build_context(self, player, world, pokemons_db, items_db, npcs_db) -> GameContext:
+    @staticmethod
+    def _build_context(player, world, pokemons_db, items_db, npcs_db) -> GameContext:
         return GameContext(
             player=player,
             world=world,
@@ -44,10 +46,8 @@ class Game:
             display_location(start, self.context)
 
     def load_game(self, save_name: str) -> None:
-        """Lädt einen Spielstand"""
         try:
-            player, world, npcs_db = self.save_manager.load_game(save_name, self.loader)
-            _, pokemons_db, items_db, _ = self.loader.load_all()
+            player, world, npcs_db, items_db, pokemons_db = self.save_manager.load_game(save_name, self.loader)
             self.context = self._build_context(player, world, pokemons_db, items_db, npcs_db)
             print(f"Spielstand '{save_name}' geladen.")
         except FileNotFoundError:
@@ -60,16 +60,16 @@ class Game:
             return
         self.save_manager.save_game(self.context, save_name)
 
-    def run(self) -> str:
+    def run(self) -> GameResult:
         """Spielloop - läuft bis der Spieler quit oder menu eingibt.
 
         Returns:
-            "quit" wenn das Spiel beendet werden soll
-            "menu" wenn ins Hauptmenü zurückgekehrt werden soll
+            GameResult.QUIT wenn das Spiel beendet werden soll
+            GameResult.MENU wenn ins Hauptmenü zurückgekehrt werden soll
         """
         if self.context is None:
             print("Fehler: Spiel nicht initialisiert.")
-            return "quit"
+            return GameResult.QUIT
 
         while True:
             try:
@@ -80,11 +80,11 @@ class Game:
                     save_callback=self.save_game,
                     load_callback=self.load_game
                 )
-                if result in ("quit", "menu"):
+                if result in (GameResult.MENU, GameResult.QUIT):
                     return result
             except KeyboardInterrupt:
                 print("\nSpiel unterbrochen.")
-                return "quit"
+                return GameResult.QUIT
 
     def main_menu(self) -> None:
         """Hauptmenü-Loop - läuft bis das Spiel beendet wird"""
@@ -117,6 +117,6 @@ class Game:
                     self.new_game(player_name)
 
             result = self.run()
-            if result == "quit":
+            if result == GameResult.QUIT:
                 break
-            # result == "menu" -> Schleife läuft weiter, Hauptmenü wird erneut angezeigt
+            # result == GameResult.MENU -> Schleife läuft weiter, Hauptmenü wird erneut angezeigt

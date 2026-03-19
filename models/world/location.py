@@ -39,7 +39,7 @@ class Location:
     name: str # angezeigter Name, z.B. "Alabastia", "Labor von Prof. Eich", "Route 1"
     description: str # Beschreibt die Location für look-Befehl
     type: LocationType
-    size: tuple[int, int] # width, height
+    size: tuple[int, int] # width, height - innerer Bereich ohne Border
     auto_boundary: bool = True # automatische Begrenzung je nach LocationType
     special_tiles: List[dict] = field(default_factory=list) # 2D-Grid mit Tiles - nur Abweichungen vom default definieren
     npcs: List[str] = field(default_factory=list) # Liste mit IDs der NPCs

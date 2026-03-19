@@ -1,8 +1,12 @@
 from game.context import GameContext
 from models.characters.npc import NPC
-from models.item import Item
+from utils import DataLoader
 from views.styles import info, important
 
+_NODE_END = "end"
+_NODE_START = "start"
+# action["type"] und condition["type"] currently not typesafe (plain string)
+# might be improved ...
 
 def _find_node(npc: NPC, node_id: str) -> dict | None:
     return next((n for n in npc.dialogue if n["id"] == node_id), None)
@@ -47,11 +51,8 @@ def _execute_action(action: dict, npc: NPC, ctx: GameContext) -> None:
             if poke_data is None:
                 print(important(f"[Fehler: Pokémon {pokemon_id} nicht in DB]"))
                 return
-            from utils.data_loader import DataLoader
-            loader = DataLoader()
-            pokemon = loader.create_pokemon_from_data(poke_data)
+            pokemon = DataLoader.create_pokemon_from_data(poke_data)
             ctx.player.team.append(pokemon)
-            npc.visited = True
             print(info(f"Du hast {pokemon.name} erhalten!"))
 
 def _check_condition(condition: dict, ctx: GameContext) -> bool:
@@ -61,7 +62,6 @@ def _check_condition(condition: dict, ctx: GameContext) -> bool:
     - has_pokemons:      Player hat mind. ein Pokémon im Team
     - has_pokemon:       Player hat ein bestimmtes Pokémon im Team
     - has_item:          Player hat ein bestimmtes Item im Inventar
-    - visited_npc:       Player hat einen bestimmten NPC bereits besucht
     """
     match condition["type"]:
         case "has_pokemons":
@@ -70,9 +70,6 @@ def _check_condition(condition: dict, ctx: GameContext) -> bool:
             return any(i.id == condition["pokemon_id"] for i in ctx.player.team)
         case "has_item":
             return any(i.id == condition["item_id"] for i in ctx.player.inventory)
-        case "visited_npc":
-            npc = ctx.npcs_db.get(condition["npc_id"])
-            return npc.visited if npc else False
         case _:
             return True
 
@@ -84,13 +81,13 @@ def run_dialogue(npc: NPC, ctx: GameContext) -> None:
     start_id = npc.current_node
     node = _find_node(npc, start_id)
     if node is None:
-        node = _find_node(npc, "start")  # Fallback
+        node = _find_node(npc, _NODE_START)  # Fallback
 
     if node is None:
         print(f"{npc.name}: ...")
         return
 
-    while node is not None and node["id"] != "end":
+    while node is not None and node["id"] != _NODE_END:
         text = node["text"].format(player_name=ctx.player.name)
         print(f"\n{npc.name}:\n{text}")
 
@@ -106,7 +103,7 @@ def run_dialogue(npc: NPC, ctx: GameContext) -> None:
                 if "condition" not in branch or _check_condition(branch["condition"], ctx):
                     next_id = branch["next"]
                     break
-            node = _find_node(npc, next_id) if next_id and next_id != "end" else None
+            node = _find_node(npc, next_id) if next_id and next_id != _NODE_END else None
             continue
 
         if "next_start" in node:
@@ -131,7 +128,7 @@ def run_dialogue(npc: NPC, ctx: GameContext) -> None:
 
         elif "next" in node:
             next_id = node["next"]
-            if next_id == "end":
+            if next_id == _NODE_END:
                 break
             node = _find_node(npc, next_id)
         else:
