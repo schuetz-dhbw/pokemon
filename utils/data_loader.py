@@ -212,12 +212,6 @@ class DataLoader:
                 }
 
                 # Optionale Felder
-                if "encounter_rate" in tile_data:
-                    tile_dict["encounter_rate"] = tile_data["encounter_rate"]
-                if "habitat" in tile_data:
-                    tile_dict["habitat"] = tile_data["habitat"]
-                if "door_target" in tile_data:
-                    tile_dict["door_target"] = tile_data["door_target"]
                 if "name" in tile_data:
                     tile_dict["name"] = tile_data["name"]
                 if "description" in tile_data:

@@ -3,13 +3,15 @@ from enum import Enum
 
 class TileType(Enum):
     """" Art eines Feldes in der Spielwelt """
-    # Untergrund (begehbar)
+    # Untergrund (begehbar, aber nicht als Zone betretbar)
     GROUND = "Erdboden"
     FLOOR = "Fußboden"
-    TALL_GRASS = "Hohes Gras"
-    WATER = "Wasser"
     WOOD = "Holz"
     STONE = "Stein"
+
+    # Zonen (betretbar via walk, triggern Pokemon-Encounter)
+    GRASS = "Gras"
+    WATER = "Wasser"
 
     # Hindernisse (nicht begehbar)
     TREE = "Baum"
@@ -23,17 +25,14 @@ class TileType(Enum):
     CONTAINER = "Container"
 
 class HabitatType(Enum):
-    """ Lebensraum für wilde Pokémon-Begegnungen """
+    """Lebensräume für wilde Pokémon – Teilmenge der betretbaren TileTypes.
+    Erweiterbar um CAVE, FOREST etc. – TILE_TO_HABITAT entsprechend anpassen."""
     GRASS = "Gras"
     WATER = "Wasser"
-    FOREST = "Wald"
-    CAVE = "Höhle"
 
-@dataclass
-class Tile:
-    """ Einzelnes Feld im Spielwelt-Raster (Location-Grid) """
-    type: TileType
-    walkable: bool
-    encounter_rate: float = 0.0 # Wahrscheinlichkeit für das Auftauchen wilder Pokemon
-    habitat: HabitatType | None = None
-    requires: str | None = None # z.B. Fähigkeit "surfen" oder Item "Schlüssel" oder Level 5
+# Verbindet betretbare Zonen (TileType) mit Pokémon-Lebensräumen (HabitatType).
+# Nur TileTypes die hier eingetragen sind, können als Zone betreten werden.
+TILE_TO_HABITAT: dict[TileType, HabitatType] = {
+    TileType.GRASS: HabitatType.GRASS,
+    TileType.WATER: HabitatType.WATER,
+}

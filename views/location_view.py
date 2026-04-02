@@ -7,7 +7,7 @@ from models.world.world import World
 TILE_SYMBOLS: dict[TileType, str] = {
     TileType.GROUND:     "⬛",
     TileType.FLOOR:      "⬜",
-    TileType.TALL_GRASS: '🟩',
+    TileType.GRASS:      "🟩",
     TileType.WATER:      "🟦",
     TileType.WOOD:       "🟫",
     TileType.STONE:      "🔳",

@@ -178,7 +178,7 @@
     ],
     "habitat": ["Gras"],
     "catch_rate": 255,
-    "spawn_probability": 0.7
+    "spawn_probability": 0.5
   },
   {
     "id": 13,
@@ -227,6 +227,6 @@
     ],
     "habitat": ["Gras"],
     "catch_rate": 255,
-    "spawn_probability": 0.5
+    "spawn_probability": 0.3
   }
 ]

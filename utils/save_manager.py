@@ -76,8 +76,9 @@ class SaveManager:
         return {
             "name": player.name,
             "current_location": player.current_location,
+            "current_zone": player.current_zone,
+            "previous_location": player.previous_location,
             "money": player.money,
-            "movement_speed": player.movement_speed,
             "team": [SaveManager._serialize_pokemon(p) for p in player.team],
             "inventory": [SaveManager._serialize_item(i) for i in player.inventory]
         }
@@ -167,8 +168,9 @@ class SaveManager:
         return Player(
             name=player_data["name"],
             current_location=player_data["current_location"],
+            current_zone=player_data.get("current_zone"),
+            previous_location=player_data.get("previous_location"),
             money=player_data.get("money", 300),
-            movement_speed=player_data.get("movement_speed", 1),
             team=team,
             inventory=inventory
         )

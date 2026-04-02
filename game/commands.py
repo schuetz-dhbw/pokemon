@@ -1,7 +1,8 @@
 from game.dialogue import run_dialogue
 from game.context import GameContext
+from game.encounter import find_pokemon_in_zone, run_encounter
 from game.game_result import GameResult
-from models.world.tile import TileType
+from models.world.tile import TileType, TILE_TO_HABITAT
 from views.location_view import display_location
 from views.styles import info
 
@@ -168,6 +169,90 @@ def cmd_talk(npc_id: str, ctx: GameContext) -> None:
         return
     run_dialogue(npc, ctx)
 
+def cmd_walk(zone_type: TileType, ctx: GameContext) -> None:
+    """Betritt eine Zone (z.B. hohes Gras) in der aktuellen Location.
+    Prüft ob die Location Tiles des gewünschten Typs hat.
+    Speichert die aktuelle Location für 'leave'.
+    """
+    location = _get_current_location(ctx)
+    if location is None:
+        return
+
+    has_zone = any(
+        TileType(t["type"]) == zone_type
+        for t in location.special_tiles
+    )
+    if not has_zone:
+        _print_available_zones(ctx)
+        return
+
+    ctx.player.current_zone = zone_type.value
+    ctx.player.previous_location = ctx.player.current_location
+
+    habitat = TILE_TO_HABITAT.get(zone_type)
+    symbol = "🟩" if zone_type == TileType.GRASS else "🟦"
+    border = symbol * 10
+    print(f"\n{border}")
+    print(f"Du betrittst das {zone_type.value}...")
+    print(f"Hier könnten wilde Pokémon lauern (find).")
+    print(border)
+
+
+def cmd_leave(ctx: GameContext) -> None:
+    """Verlässt die aktuelle Zone und kehrt zur vorherigen Location zurück."""
+    if ctx.player.current_zone is None:
+        print("Du befindest dich in keiner Zone.")
+        return
+
+    zone_name = ctx.player.current_zone
+    ctx.player.current_zone = None
+
+    if ctx.player.previous_location:
+        ctx.player.current_location = ctx.player.previous_location
+        ctx.player.previous_location = None
+
+    print(f"Du verlässt das {zone_name.lower()}.")
+    location = _get_current_location(ctx)
+    if location:
+        display_location(location, ctx)
+
+
+def cmd_find(ctx: GameContext) -> None:
+    """Sucht nach wilden Pokémon in der aktuellen Zone."""
+    if ctx.player.current_zone is None:
+        print("Du befindest dich in keiner Zone. Betritt zuerst hohes Gras (walk gras).")
+        return
+
+    zone_type = TileType(ctx.player.current_zone)
+    habitat = TILE_TO_HABITAT.get(zone_type)
+
+    if habitat is None:
+        print(f"In dieser Zone gibt es keine wilden Pokémon.")
+        return
+
+    pokemon = find_pokemon_in_zone(habitat, ctx)
+
+    if pokemon is None:
+        print("Du durchsuchst das Gras... aber hier ist im Moment kein wildes Pokémon.")
+        return
+
+    run_encounter(pokemon, ctx)
+
+def _print_available_zones(ctx: GameContext) -> None:
+    """Gibt die betretbaren Zonen der aktuellen Location aus"""
+    location = _get_current_location(ctx)
+    if location is None:
+        return
+    zones = {
+        TileType(t["type"])
+        for t in location.special_tiles
+        if TileType(t["type"]) in TILE_TO_HABITAT
+    }
+    if zones:
+        zone_names = ", ".join(f"'{z.value.lower()}'" for z in zones)
+        print(f"Verfügbare Zonen hier: {zone_names} (z.B. 'walk gras')")
+    else:
+        print("Hier gibt es keine betretbaren Zonen.")
 
 def cmd_npcs(ctx: GameContext) -> None:
     """Listet alle NPCs in der aktuellen Location auf"""
@@ -240,6 +325,26 @@ def parse_command(
             else:
                 print("Was möchtest du untersuchen?")
 
+        case "walk" | "betrete":
+            if not args:
+                print("Welche Zone möchtest du betreten? (z.B. 'walk gras')")
+            else:
+                zone_name = " ".join(args).capitalize()
+                try:
+                    zone_type = TileType(zone_name)
+                    if zone_type not in TILE_TO_HABITAT:
+                        print(f"'{zone_name}' ist keine betretbare Zone.")
+                    else:
+                        cmd_walk(zone_type, ctx)
+                except ValueError:
+                    _print_available_zones(ctx)
+
+        case "leave" | "verlasse":
+            cmd_leave(ctx)
+
+        case "find":
+            cmd_find(ctx)
+
         case "save" | "speichern":
             save_name = args[0] if args else "savegame"
             save_callback(save_name)
@@ -275,6 +380,9 @@ def print_help() -> None:
     print("  inventory / inventar / inv    - Inventar anzeigen")
     print("  take / nimm <item>            - Item aufnehmen (mehrere: 'take pokeball heiltrank')")
     print("  inspect / untersuche <objekt> - Objekt untersuchen")
+    print("  walk / betrete <zone>         - Zone betreten (z.B. 'walk gras')")
+    print("  find                          - Nach wilden Pokémon suchen (nur in Zone)")
+    print("  leave / verlasse              - Zone verlassen")
     print("  save / speichern [name]       - Spielstand speichern")
     print("  load / laden [name]           - Spielstand laden")
     print("  menu / hauptmenu              - Hauptmenu aufrufen")
