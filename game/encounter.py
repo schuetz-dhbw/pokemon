@@ -1,5 +1,6 @@
 import random
 
+from game.battle import run_battle
 from game.context import GameContext
 from models.pokemon.pokemon import Pokemon
 from models.world.tile import HabitatType
@@ -49,15 +50,9 @@ def run_encounter(pokemon: Pokemon, ctx: GameContext) -> None:
     """
     print(f"\n⚡ Ein wildes {pokemon.name} (Lv.{pokemon.level}) taucht auf!")
 
-    if not ctx.player.team:
-        print("Du hast kein Pokémon dabei – du läufst weg!")
-        return
-
     answer = input("Möchtest du kämpfen? [ja/nein] > ").strip().lower()
     if answer != "ja":
         print("Du weichst dem wilden Pokémon aus.")
         return
 
-    # TODO: Kampflogik hier einfügen
-    # Aktuell: Spieler kehrt einfach in die Zone zurück
-    print("(Kampf noch nicht implementiert – du kehrst ins Gras zurück.)")
+    run_battle(pokemon, ctx)
