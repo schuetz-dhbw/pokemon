@@ -400,16 +400,15 @@ Ansonsten bleibt der NPC beim letzten Knoten stecken und das nächste Gespräch 
 Die Basis-Version bietet einen ersten Einstieg für das Projekt, um nicht alles von Grund auf entwickeln zu müssen.
 Häufig sind bereits Vorbereitungen für zukünftige Features enthalten, auch wenn sie aktuell noch nicht genutzt werden.
 Dennoch ist diese Version bewusst unvollständig und bietet viele Möglichkeiten zur Erweiterung und Verbesserung.
-Folgende Punkte bieten Potenzial für die Sprints:
+Zur Einarbeitung ins Projekt bieten sich die folgenden Punkte an und sollten im Sprint 0 korrigiert werden:
 
-**Technische Schulden:**
-- `special_tiles` sind aktuell untypisierte Dicts mit TileType-abhängigen optionalen Feldern (`door_target`, `items`, `name`, ...). 
-- `action["type"]` und `condition["type"]` im Dialogue-System sind plain Strings, nicht typsicher.
-- `location.items` ist eine Liste von Dicts (nicht typisiert).
-- Zone wird als str gespeichert, könnte auf HabitatType umgestellt werden
-- Dialoge haben aktuell keinen Abbruch-Mechanismus, um das laufende Gespräch vorzeitig zu beenden.
-- Kampfschaden ignoriert Stats – nur `attack.power` wird genutzt.
-- Keine Tests vorhanden – Unit Tests für DataLoader, Dialogue-Engine, Commands wären sinnvoll.
+- `location.items` ist eine Liste von Dicts (nicht typisiert)
+- `current_zone` im Player wird als str gespeichert (nicht typisiert)
+- Dialoge haben aktuell keinen Abbruch-Mechanismus, um das laufende Gespräch vorzeitig zu beenden
+- `action["type"]` und `condition["type"]` im Dialogue-System sind plain Strings, nicht typsicher
+- Gegnerzug im Kampf wählt immer `attacks[0]`, könnte stattdessen eine Zufallsauswahl sein
+- `cmd_walk`: Zone-Symbol hardcoded (`🟩`/`🟦`)
+- Optional: `special_tiles` sind aktuell untypisierte Dicts mit TileType-abhängigen optionalen Feldern (`door_target`, `items`, `name`, ...)
 
 ---
 
