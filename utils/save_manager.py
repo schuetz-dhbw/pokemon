@@ -60,7 +60,7 @@ class SaveManager:
         world, pokemons_db, items_db, npcs_db = data_loader.load_all()
 
         # Player deserialisieren
-        player = self._deserialize_player(save_data["player"], data_loader, items_db)
+        player = self._deserialize_player(save_data["player"], data_loader, items_db, pokemons_db)
 
         # World-State wiederherstellen
         self._apply_world_state(world, save_data["world_state"], npcs_db)
@@ -131,13 +131,13 @@ class SaveManager:
     def _deserialize_player(
             player_data: dict[str, Any],
             data_loader: DataLoader,
-            items_db: dict[str, Item]
+            items_db: dict[str, Item],
+            pokemons_db: dict[int, dict]
     ) -> Player:
         """Deserialisiert Player aus JSON"""
 
         # Team laden
         team = []
-        pokemons_db = data_loader.load_pokemons()
         for poke_data in player_data.get("team", []):
             # Pokemon aus DB laden und mit gespeicherten Werten überschreiben
             base_data = pokemons_db[poke_data["id"]]

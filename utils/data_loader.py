@@ -43,6 +43,10 @@ class DataLoader:
         items = {}
 
         for item_data in items_data:
+            if not item_data.get("id") or not item_data.get("name"):
+                raise ValueError(f"Item ohne 'id' oder 'name' gefunden: {item_data}")
+            if not item_data.get("type"):
+                raise ValueError(f"Item '{item_data.get('id')}' hat keinen Typ.")
             item = Item(
                 id=item_data["id"],
                 name=item_data["name"],
@@ -77,6 +81,12 @@ class DataLoader:
             poke_data: Pokemon-Rohdaten aus JSON
             level: Level des Pokemon (default: 5)
         """
+
+        if not poke_data.get("attacks"):
+            raise ValueError(f"Pokémon '{poke_data.get('id')}' hat keine Attacken definiert.")
+        if not 0 <= poke_data.get("spawn_probability", 0) <= 1:
+            raise ValueError(f"Pokémon '{poke_data.get('id')}': spawn_probability muss zwischen 0 und 1 liegen.")
+
         # Types parsen
         types = [PokemonType(t) for t in poke_data["types"]]
 
@@ -169,6 +179,11 @@ class DataLoader:
         npcs = {}
 
         for npc_data in npcs_data:
+            if not npc_data.get("id") or not npc_data.get("name"):
+                raise ValueError(f"NPC ohne 'id' oder 'name' gefunden: {npc_data}")
+            for item_entry in npc_data.get("inventory", []):
+                if item_entry["item_id"] not in items_db:
+                    raise ValueError(f"NPC '{npc_data.get('id')}': Item '{item_entry['item_id']}' nicht in items_db.")
             # Inventar aus items_db laden
             inventory = []
             for item_entry in npc_data.get("inventory", []):
@@ -202,6 +217,11 @@ class DataLoader:
         locations = {}
 
         for loc_data in locations_data:
+            if not loc_data.get("id") or not loc_data.get("name"):
+                raise ValueError(f"Location ohne 'id' oder 'name' gefunden: {loc_data}")
+            size = loc_data.get("size")
+            if not size or len(size) != 2 or any(s <= 0 for s in size):
+                raise ValueError(f"Location '{loc_data.get('id')}': ungültige 'size' {size}.")
             # Special tiles parsen
             special_tiles = []
             for tile_data in loc_data.get("special_tiles", []):
@@ -263,5 +283,14 @@ class DataLoader:
         pokemons_db = self.load_pokemons()
         items_db = self.load_items()
         npcs_db = self.load_npcs(items_db)
+
+        # Kreuzreferenzen prüfen
+        for loc_id, location in world.locations.items():
+            for npc_id in location.npcs:
+                if npc_id not in npcs_db:
+                    raise ValueError(f"Location '{loc_id}': NPC '{npc_id}' nicht in npcs_db.")
+            for item_entry in location.items:
+                if item_entry["item_id"] not in items_db:
+                    raise ValueError(f"Location '{loc_id}': Item '{item_entry['item_id']}' nicht in items_db.")
 
         return world, pokemons_db, items_db, npcs_db

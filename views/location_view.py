@@ -143,7 +143,7 @@ def display_location(location: Location, ctx: GameContext) -> None:
             print(f"🎒 {qty}x {name} (take {item['item_id']})")
 
     # Container
-    containers = [t for t in location.special_tiles if t["type"] == "Container"]
+    containers = [t for t in location.special_tiles if t["type"] == TileType.CONTAINER.value]
     if containers:
         print("\nObjekte hier:")
         for c in containers:

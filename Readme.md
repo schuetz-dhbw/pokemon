@@ -14,8 +14,9 @@ Willkommen zu diesem Retro-Pokémon-Text-Adventure - Nostalgie pur für Fans der
 Inhaltlich orientiert sich dieses Spiel an den ersten Gameboy-Pokémon-Versionen
 mit den Editionen Rot, Blau und Gelb und 151 Pokémons.  
 
-In diesem Spiel schlüpfst du in die Rolle eines Pokémon-Trainers und begibst
-dich auf eine Reise durch die Kanto-Region.  
+In diesem Spiel schlüpfst du in die Rolle eines Pokémon-Trainers und begibst dich auf eine Reise durch die Kanto-Region.
+Das Spiel startet in Alabastia. Der Spieler hat zu Beginn **kein Starter-Pokémon** – genau wie im Original muss er zuerst
+zu Professor Eich ins Labor gehen, um eines zu erhalten. Erst danach sind Kämpfe möglich.
 
 - Wähle deinen Starter-Pokémon (1 von 3)
 - Kämpfe gegen wilde Pokémon und andere Trainer
@@ -420,6 +421,7 @@ Ein paar Ideen zur individuellen Erweiterung für Teams, die ambitioniert sind:
 - **KI-generierte Dialoge:** NPC-Texte dynamisch per LLM generieren lassen.
 - **Erweitertes Quest-System:** Mehrschrittige Quests mit Fortschrittsverfolgung auf Basis des bestehenden Dialogue-Systems
 - **Positionsabhängige Events:** Aktuell haben NPCs und Items keine festen Positionen im JSON (zufällige Zuweisung beim Laden). Mit fest Positionen wären auch wandernde NPCs oder positionsabhängige Story-Events (z.B. ein Item erscheint erst, wenn der Spieler einen bestimmten Tile betritt oder ein NPC taucht erst auf, wenn der Spieler eine bestimmte Location besucht hat) möglich.
+- **Vollständige JSON-Schema-Validierung**: Je größer die Datenbasis, desto wichtiger wäre eine vollständige JSON-Valididerung (z.B. mit `pydantic` oder manuell)
 
 ---
 

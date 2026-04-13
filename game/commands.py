@@ -2,11 +2,12 @@ from game.dialogue import run_dialogue
 from game.context import GameContext
 from game.encounter import find_pokemon_in_zone, run_encounter
 from game.game_result import GameResult
+from models.world.location import Location
 from models.world.tile import TileType, TILE_TO_HABITAT
 from views.location_view import display_location
 from views.styles import info
 
-def _get_current_location(ctx: GameContext):
+def _get_current_location(ctx: GameContext) -> Location | None:
     """Gibt die aktuelle Location zurück oder None bei Fehler"""
     location = ctx.world.get_location(ctx.player.current_location)
     if location is None:
@@ -42,6 +43,11 @@ def cmd_move(target_id: str, ctx: GameContext) -> None:
         print(f"'{target_id}' ist von hier aus nicht erreichbar.")
         return
 
+    # Zone zurücksetzen, falls Spieler eine Zone verlässt ohne 'leave'
+    if ctx.player.current_zone is not None:
+        ctx.player.current_zone = None
+        ctx.player.previous_location = None
+
     target = ctx.world.get_location(resolved_id)
     if target is None:
         print(f"Fehler: Ziel-Location '{resolved_id}' nicht gefunden.")
@@ -51,6 +57,7 @@ def cmd_move(target_id: str, ctx: GameContext) -> None:
     display_location(target, ctx)
 
 def cmd_team(ctx: GameContext) -> None:
+    """Zeigt alle Pokémon im Team des Spielers mit Typ und aktuellen HP"""
     if not ctx.player.team:
         print("Du hast noch keine Pokémon in deinem Team.")
         return
@@ -83,6 +90,8 @@ def cmd_take(args: list[str], ctx: GameContext) -> None:
     not_found = []
 
     for item_id in args:
+        # Container können nicht direkt mitgenommen werden:
+        # inspect öffnet sie und verschiebt ihren Inhalt in location.items --> danach ist Inhalt per take aufnehmbar
         container = next(
             (t for t in location.special_tiles
              if t["type"] == TileType.CONTAINER.value
@@ -90,7 +99,7 @@ def cmd_take(args: list[str], ctx: GameContext) -> None:
             None
         )
         if container:
-            print(f"'{item_id}' kann nicht mitgenommen werden.")
+            print(f"'{item_id}' kann nicht mitgenommen werden. Benutze 'inspect {item_id}'.")
             continue
 
         item_entry = next((i for i in location.items if i["item_id"] == item_id and not i.get("hidden")), None)
@@ -151,7 +160,7 @@ def cmd_inspect(name: str, ctx: GameContext) -> None:
         qty = item_entry.get("quantity", 1)
         print(f"  🎒 {qty}x {name_str} (take {item_entry['item_id']})")
 
-    # Inhalt in location.items verschieben → jetzt mit take aufnehmbar
+    # Inhalt in location.items verschieben --> jetzt mit 'take' aufnehmbar
     location.items.extend(items)
     container["items"] = []
 
@@ -189,7 +198,6 @@ def cmd_walk(zone_type: TileType, ctx: GameContext) -> None:
     ctx.player.current_zone = zone_type.value
     ctx.player.previous_location = ctx.player.current_location
 
-    habitat = TILE_TO_HABITAT.get(zone_type)
     symbol = "🟩" if zone_type == TileType.GRASS else "🟦"
     border = symbol * 10
     print(f"\n{border}")

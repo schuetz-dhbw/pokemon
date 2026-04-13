@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 from enum import Enum
 
 from models.characters.character import Character
@@ -14,6 +13,6 @@ class NPCType(Enum):
 class NPC(Character):
     """ Non-Player-Character mit spezifischem Typ und Dialogen """
     npc_type: NPCType = NPCType.TRAINER
-    description: str = "" # Beschreibung für look / inspect
-    dialogue: List[dict] = field(default_factory=list)  # Dialogue-Tree (Liste von Knoten)
+    description: str = "" # Kurzbeschreibung, angezeigt bei npcs und talk
+    dialogue: list[dict] = field(default_factory=list)  # Dialogue-Tree (Liste von Knoten)
     current_node: str = "start"  # Aktueller Knoten im Dialogue-Tree
