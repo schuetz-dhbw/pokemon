@@ -80,14 +80,14 @@ Spielstände werden automatisch im Ordner `saves/` abgelegt.
 | `go <ziel>`        | `gehe <ziel>`       | Zu einer verbundenen Location navigieren          |
 | `talk <npc>`       | `rede <npc>`        | Mit einem NPC sprechen                            |
 | `team`             | `team`              | Eigenes Pokémon-Team anzeigen                     |
-| `inventory`, `ìnv` | `inventar`, `inv`   | Inventar anzeigen                                 |
+| `inventory`, `inv` | `inventar`, `inv`   | Inventar anzeigen                                 |
 | `take`             | `nimm`              | Item aufnehmen                                    |
 | `inspect <thing>`  | `untersuche <ding>` | Gegenstand untersuchen                            |
 | `walk <zone>`      | `betrete <zone>`    | Zone betreten (z.B. `walk gras`)                  |
 | `find`             | -                   | Nach wilden Pokémon suchen (nur in Zone)          |
 | `leave`            | `verlasse`          | Zone verlassen                                    |
-| `save [name]`      | `speichern`         | Spielstand speichern (Standard: `savegame`)       |
-| `load [name]`      | `laden`             | Spielstand laden                                  |
+| `save [name]`      | `speichern [name]`  | Spielstand speichern (Standard: `savegame`)       |
+| `load [name]`      | `laden [name]`      | Spielstand laden                                  |
 | `menu`             | `hauptmenu`         | Zurück ins Hauptmenü                              |
 | `help`, `?`        | `hilfe`, `?`        | Befehlsübersicht anzeigen                         |
 | `quit`             | `beenden`           | Spiel beenden                                     |
@@ -401,6 +401,8 @@ Die Basis-Version bietet einen ersten Einstieg für das Projekt, um nicht alles 
 Häufig sind bereits Vorbereitungen für zukünftige Features enthalten, auch wenn sie aktuell noch nicht genutzt werden.
 Dennoch ist diese Version bewusst unvollständig und bietet viele Möglichkeiten zur Erweiterung und Verbesserung.
 Zur Einarbeitung ins Projekt bieten sich die folgenden Punkte an und sollten im Sprint 0 korrigiert werden:
+
+**Technische Schulden:**
 
 - `location.items` ist eine Liste von Dicts (nicht typisiert)
 - `current_zone` im Player wird als str gespeichert (nicht typisiert)
